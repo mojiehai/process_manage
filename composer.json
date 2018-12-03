@@ -1,0 +1,21 @@
+{
+    "name"  : "mojiehai/process_manage",
+    "description": "process manage",
+    "license": "MIT",
+    "keywords": ["process", "manage"],
+    "authors": [
+        {
+            "name": "mojiehai",
+            "email": "804527505@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "ext-pcntl": "*",
+        "ext-posix": "*",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {"ProcessManage\\": "./src/"}
+    }
+}
