@@ -12,6 +12,21 @@ class ManageProcessTemplate extends Template
 {
 
     /**
+     * 命令映射的类
+     * @var array
+     */
+    protected $mapping = [
+        'action' => [
+            'start' => '\ProcessManage\Command\Action\Start',
+            'stop' => '\ProcessManage\Command\Action\Stop',
+            'restart' => '\ProcessManage\Command\Action\ReStart',
+        ],
+        'options' => [
+            'd' => '\ProcessManage\Command\Options\D',
+        ],
+    ];
+
+    /**
      * 获取模板内容
      * @return string
      */

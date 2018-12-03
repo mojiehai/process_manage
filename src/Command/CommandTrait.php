@@ -1,7 +1,6 @@
 <?php
 
 namespace ProcessManage\Command;
-use ProcessManage\Command\Template\Template;
 
 /**
  * 命令最小粒度的特性
@@ -38,20 +37,20 @@ trait CommandTrait
      */
     protected function initCommand()
     {
-        $this->commandStr = $this->getCommandStr();
-        $this->description = $this->getCommandDescription();
+        $this->commandStr = static::getCommandStr();
+        $this->description = static::getCommandDescription();
     }
 
     /**
      * 获取命令
      * @return string
      */
-    abstract public function getCommandStr();
+    abstract public static function getCommandStr();
 
     /**
      * 获取命令描述
      * @return string
      */
-    abstract public function getCommandDescription();
+    abstract public static function getCommandDescription();
 
 }

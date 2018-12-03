@@ -13,7 +13,8 @@
         "php": ">=7.0",
         "ext-pcntl": "*",
         "ext-posix": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-mbstring": "*"
     },
     "autoload": {
         "psr-4": {"ProcessManage\\": "./src/"}

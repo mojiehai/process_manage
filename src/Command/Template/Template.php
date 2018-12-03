@@ -2,6 +2,9 @@
 
 namespace ProcessManage\Command\Template;
 
+use ProcessManage\Command\Action\Action;
+use ProcessManage\Command\Options\Options;
+
 /**
  * 命令模板抽象
  *
@@ -30,6 +33,33 @@ abstract class Template
      */
     protected $tempLate = '';
 
+    /**
+     * 命令映射的类
+     * @var array
+     * [
+     *  'action' => [
+     *      'start' => '\ProcessManage\Command\Action\Start',
+     *      ...
+     *  ],
+     *  'options' => [
+     *      'd' => '\ProcessManage\Command\Options\D',
+     *  ]
+     * ]
+     */
+    protected $mapping = [];
+
+    /**
+     * 模板行为参数的可选行为
+     * @var array
+     */
+    protected $actionListCache = [];
+
+    /**
+     * 模板附加参数的可选行为
+     * @var array
+     */
+    protected $optionsListCache = [];
+
     public function __construct()
     {
         $this->initTemplate();
@@ -49,22 +79,24 @@ abstract class Template
      */
     abstract public function getTemplateStr();
 
-
     /**
      * 解析模板行为参数的可选行为
      * @return array [string, string, ...]
      */
     public function getActionList()
     {
-        $comList = explode(' ', $this->tempLate);
-        $actionList = [];
-        if ($this->isActionParam($comList[0])) {
-            if ($this->isMustBeParam($comList[0])) {
-                $actionList = explode('|', $this->unWrap($comList[0]));
-                array_map('trim',$actionList);
+        if (empty($this->actionListCache)) {
+            $comList = explode(' ', $this->tempLate);
+            $actionList = [];
+            if ($this->isActionParam($comList[0])) {
+                if ($this->isMustBeParam($comList[0])) {
+                    $actionList = explode('|', $this->unWrap($comList[0]));
+                    array_map('trim', $actionList);
+                }
             }
+            $this->actionListCache = $actionList;
         }
-        return $actionList;
+        return $this->actionListCache;
     }
 
     /**
@@ -75,29 +107,32 @@ abstract class Template
      *  'notMust' => [string, ...],
      * ]
      */
-    public function getOptionalList()
+    public function getOptionsList()
     {
-        $comList = explode(' ', $this->tempLate);
-        unset($comList[0]);
-        $must = [];
-        $notMust = [];
-        foreach ($comList as $v) {
-            if ($this->isOptionalParam($v)) {
-                // 去头 -
-                $item = $this->removeHead($v);
-                if ($this->isMustBeParam($item)) {
-                    $optionalList = explode('|', $this->unWrap($item));
-                    $must = array_merge($must, $optionalList);
-                } else if ($this->isNotMustBeParam($item)) {
-                    $optionalList = explode('|', $this->unWrap($item));
-                    $notMust = array_merge($notMust, $optionalList);
+        if (empty($this->optionsListCache)) {
+            $comList = explode(' ', $this->tempLate);
+            unset($comList[0]);
+            $must = [];
+            $notMust = [];
+            foreach ($comList as $v) {
+                if ($this->isOptionalParam($v)) {
+                    // 去头 -
+                    $item = $this->removeHead($v);
+                    if ($this->isMustBeParam($item)) {
+                        $optionalList = explode('|', $this->unWrap($item));
+                        $must = array_merge($must, $optionalList);
+                    } else if ($this->isNotMustBeParam($item)) {
+                        $optionalList = explode('|', $this->unWrap($item));
+                        $notMust = array_merge($notMust, $optionalList);
+                    }
                 }
             }
+            $this->optionsListCache = [
+                'must' => $must,
+                'notMust' => $notMust
+            ];
         }
-        return [
-            'must' => $must,
-            'notMust' => $notMust
-        ];
+        return $this->optionsListCache;
     }
 
     /**
@@ -183,6 +218,71 @@ abstract class Template
     protected function removeTail(string $item)
     {
         return mb_substr($item, 0, mb_strlen($item) - 1);
+    }
+
+    /**
+     * 根据action获取类
+     * @param string $action
+     * @return Action|null
+     */
+    public function getActionClass(string $action)
+    {
+        if (isset($this->mapping['action'][$action])) {
+            $class = $this->mapping['action'][$action];
+            return new $class();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 根据options获取类
+     * @param string $options
+     * @return Options|null
+     */
+    public function getOptionsClass(string $options)
+    {
+        if (isset($this->mapping['options'][$options])) {
+            $class = $this->mapping['options'][$options];
+            return new $class();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 获取命令详情
+     * @return string
+     */
+    public function getDescription()
+    {
+        $actionList = $this->getActionList();
+        $str = "action: \n";
+        foreach ($actionList as $v) {
+            $className = $this->mapping['action'][$v];
+            $cmd = $className::getCommandStr();
+            $desc = $className::getCommandDescription();
+            $cmdStr = "  ".$cmd;
+            while(mb_strlen($cmdStr) < 15) {
+                $cmdStr .= ' ';
+            }
+            $str .= $cmdStr.' '.$desc."\n";
+        }
+
+        $optionsList = $this->getOptionsList();
+        $optionsList = array_merge($optionsList['must'], $optionsList['notMust']);
+        $str .= "options: \n";
+        foreach ($optionsList as $v) {
+            $className = $this->mapping['options'][$v];
+            $cmd = $className::getCommandStr();
+            $desc = $className::getCommandDescription();
+            $cmdStr = "  -".$cmd;
+            while(mb_strlen($cmdStr) < 15) {
+                $cmdStr .= ' ';
+            }
+            $str .= $cmdStr.' '.$desc."\n";
+        }
+        return $str;
     }
 
 }

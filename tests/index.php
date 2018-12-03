@@ -2,9 +2,11 @@
 
 require __DIR__."/bootstrap.php";
 
+use ProcessManage\Command\Command;
+
 $config = include __DIR__.'/config.php';
 
-$d = new \ProcessManage\Command\Param\D();
 
-
+$command = new Command();
+$command->run();
 

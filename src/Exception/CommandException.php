@@ -15,32 +15,23 @@ class CommandException extends Exception
     /**
      * 显示错误信息
      * @param Command $com
+     * @return string
      */
-    public static function showErrors(Command $com)
+    public function showErrors(Command $com)
     {
         $str = '';
-        $commend = $com->command;
-        if (empty($commend)) {
+        if (empty($this->getMessage())) {
             $str .= "Please enter the command";
         } else {
-            $str .= "ERROR: command '".$commend."' syntax error";
+            $str .= $this->getMessage();
         }
         $str .= "\n";
 
-        echo $str;
+        $str .= $com->showHelps();
 
-        static::showHelps($com);
+        return $str;
     }
 
-    /**
-     * 显示提示信息
-     * @param Command $com
-     */
-    public static function showHelps(Command $com)
-    {
-        $str = "";
-        $str .= "Usage: ".$com->getExecFileName()." ".$com->getTemplate()->getTemplateStr()."\n";
-        echo $str;
-    }
+
 
 }
