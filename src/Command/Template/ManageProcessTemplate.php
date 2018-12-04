@@ -15,7 +15,7 @@ class ManageProcessTemplate extends Template
      * 命令映射的类
      * @var array
      */
-    protected $mapping = [
+    public $mapping = [
         'action' => [
             'start' => '\ProcessManage\Command\Action\Start',
             'stop' => '\ProcessManage\Command\Action\Stop',

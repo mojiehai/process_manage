@@ -41,6 +41,8 @@ class D extends Options
      */
     public function impactAction(Action $action)
     {
+        echo 'd';
+        return;
         //分离出子进程
         $pid = pcntl_fork();
         if($pid < 0){

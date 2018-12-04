@@ -23,14 +23,14 @@ abstract class Options
 
     public function __construct($param = null)
     {
-        $this->addParam($param);
+        $this->setParam($param);
     }
 
     /**
      * 添加参数对应的值
      * @param $param
      */
-    public function addParam($param)
+    public function setParam($param)
     {
         $this->param = $param;
     }
