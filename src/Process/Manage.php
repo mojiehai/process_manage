@@ -72,22 +72,20 @@ class Manage
     public function start()
     {
         $master = new Master($this->config);
-        echo $master->pid . ' -- '. $master->title . ' -- starting !' . PHP_EOL;
         $master->setWorkInit($this->closureInit)->setWork($this->closure)->run();
     }
 
     /**
      * stop命令动作
-     * @return void
+     * @return bool
      * @throws ProcessException
      */
     public function stop()
     {
-        $master = new Master($this->config, -1);
-        $master->pid = $master->getPidByFile();
-        if (Master::isMasterAlive($master)) {
+        $master = new Master($this->config);
+        if ($master->checkAlive()) {
             if (posix_kill($master->pid, SIGUSR2)) {
-                echo 'stop'.PHP_EOL;
+                return true;
             } else {
                 throw new ProcessException('stop failure');
             }
@@ -98,16 +96,15 @@ class Manage
 
     /**
      * restart命令动作
-     * @return void
+     * @return bool
      * @throws ProcessException
      */
     public function restart()
     {
-        $master = new Master($this->config, -1);
-        $master->pid = $master->getPidByFile();
-        if (Master::isMasterAlive($master)) {
+        $master = new Master($this->config);
+        if ($master->checkAlive()) {
             if (posix_kill($master->pid, SIGUSR1)) {
-                echo 'restart'.PHP_EOL;
+                return true;
             } else {
                 throw new ProcessException('restart failure');
             }

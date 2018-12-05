@@ -2,6 +2,7 @@
 
 namespace ProcessManage\Process;
 
+use ProcessManage\Config\ProcessConfig;
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Log\ProcessLog;
 use ProcessManage\Exception\Exception;
@@ -65,14 +66,23 @@ class Master extends Process
      */
     protected function configure()
     {
-        // 初始化根目录(此值为默认值，支持通过配置修改)
-        $this->pidFileDir = dirname(__DIR__).DIRECTORY_SEPARATOR.'runtime'.DIRECTORY_SEPARATOR.'pid';
         parent::configure();
 
+        // 初始化根目录
+        $this->pidFileDir = ProcessConfig::$PidRoot;
         // 初始化pid文件名
         $this->pidFileName = $this->title;
         // 初始化pid完整文件路径
         $this->pidFilePath = $this->pidFileDir.DIRECTORY_SEPARATOR.$this->pidFileName;
+    }
+
+    /**
+     * 设置pid
+     * @throws ProcessException
+     */
+    protected function setPid()
+    {
+        $this->pid = $this->getPidByFile();
     }
 
     /**
@@ -81,9 +91,13 @@ class Master extends Process
      */
     protected function init()
     {
-        // 检查master是否已经启动
-        if (static::isMasterAlive($this)) {
+        // 检查当前进程是否已经启动
+        if ($this->checkAlive()) {
             throw new ProcessException('process is already exists!');
+        }
+        // 如果pid为0，则获取新pid
+        if (empty($this->pid)) {
+            $this->setNewPid();
         }
         parent::init();
         $this->savePidToFile();
@@ -135,22 +149,12 @@ class Master extends Process
      * @return int pid
      * @throws ProcessException
      */
-    public function getPidByFile()
+    protected function getPidByFile()
     {
         $this->initPidFile();
         return intval(file_get_contents($this->pidFilePath));
     }
 
-    /**
-     * 判断master进程是否存活
-     * @param Master $master master进程对象
-     * @return bool
-     * @throws ProcessException
-     */
-    public static function isMasterAlive(Master $master)
-    {
-        return static::isAlive($master->getPidByFile());
-    }
     ############################## pid file ###############################
 
 

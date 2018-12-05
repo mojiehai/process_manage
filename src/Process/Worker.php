@@ -66,9 +66,7 @@ class Worker extends Process
      */
     protected function runHandler()
     {
-        // 生成一个master对象，pid传-1只是不用再次获取当前pid
-        $master = new Master($this->config, -1);
-        $master->pid = $master->getPidByFile();
+        $master = new Master($this->config);
 
         $work = $this->workInit();
         while (true) {
@@ -98,7 +96,7 @@ class Worker extends Process
             if (
                 $time % 10 == 0 &&
                 (!$this->isExpectStop()) &&
-                (!Master::isMasterAlive($master))
+                (!$master->checkAlive())
             ) {
                 $this->setStop();
             }

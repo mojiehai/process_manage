@@ -35,7 +35,7 @@ abstract class Process
      *
      * @var int
      */
-    public $pid = '';
+    public $pid = 0;
 
     /**
      * 进程名称 (前缀、类型、进程基础名称组成)
@@ -47,7 +47,7 @@ abstract class Process
      * 进程名称前缀
      * @var string
      */
-    protected $titlePrefix = 'process_m';
+    protected $titlePrefix = 'pm';
 
     /**
      * 进程基础名称(用来区分多个多进程任务)
@@ -94,20 +94,14 @@ abstract class Process
     /**
      * Process constructor.
      * @param array $config
-     * @param int $pid  进程pid
      */
-    public function __construct(array $config = [], $pid = 0)
+    public function __construct(array $config = [])
     {
         $this->status = self::STATUS_PREPARE;
-        if (empty($pid)) {
-            // 获取当前进程pid
-            $this->pid = posix_getpid();
-        } else {
-            $this->pid = $pid;
-        }
-        $this->config = $config;
         // 加载配置
+        $this->config = $config;
         $this->configure();
+        $this->setPid();
     }
 
     /**
@@ -130,6 +124,22 @@ abstract class Process
         $className = end($classNameInfoArr);
         $titleArr = [$this->titlePrefix, $className, $this->baseTitle];
         $this->title = implode(self::TITLE_DELIMITER, $titleArr);
+    }
+
+    /**
+     * 设置pid
+     */
+    protected function setPid()
+    {
+        $this->setNewPid();
+    }
+
+    /**
+     * 重设pid
+     */
+    public function setNewPid()
+    {
+        $this->pid = posix_getpid();
     }
 
     /**
@@ -271,6 +281,16 @@ abstract class Process
      * 工作开始
      */
     abstract protected function runHandler();
+
+
+    /**
+     * 检测当前进程是否存在
+     * @return bool
+     */
+    public function checkAlive()
+    {
+        return static::isAlive($this->pid);
+    }
 
 
     /**

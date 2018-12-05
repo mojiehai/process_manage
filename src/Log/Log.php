@@ -3,6 +3,7 @@
 namespace ProcessManage\Log;
 
 use ProcessManage\Config\LogConfig;
+use ProcessManage\Exception\Exception;
 
 /**
  * 基础日志类
@@ -93,12 +94,15 @@ class Log
     final protected static function getLogBaseDir()
     {
         $logRoot = LogConfig::$LogBaseRoot;
-        if (empty($logRoot)) {
-            $logRoot = dirname(dirname(__DIR__)).DIRECTORY_SEPARATOR.'processLog';
-        }
         if (!is_dir($logRoot)) {
-            mkdir($logRoot, 0777, true);
-            chmod($logRoot, 0777);
+            $mkdir = mkdir($logRoot, 0777, true);
+            if (!$mkdir) {
+                throw new Exception($logRoot . ' 不可写');
+            }
+            $chmod = chmod($logRoot, 0777);
+            if (!$chmod) {
+                throw new Exception($logRoot . ' 权限不足');
+            }
         }
         return $logRoot;
     }

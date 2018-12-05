@@ -20,7 +20,7 @@ class LogConfig extends Config
      * 日志文件根目录
      * @var string
      */
-    public static $LogBaseRoot = null;
+    public static $LogBaseRoot = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'runtime'.DIRECTORY_SEPARATOR.'log';
 
     /**
      * 日志级别对应的文件名前缀
