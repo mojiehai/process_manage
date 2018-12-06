@@ -9,7 +9,7 @@ use ProcessManage\Process\Worker;
 
 $config = [
     // 进程基础配置
-    'titlePrefix' => 'process_m_psh',   // 进程前缀
+    'titlePrefix' => 'process_m',   // 进程前缀
     'baseTitle' => 'test',  // 进程基础名称
 
     // master 进程配置
@@ -26,6 +26,7 @@ try {
     // 创建进程管理器
     (new Manage($config))
         ->setWorkInit(
+            // 工作内容初始化
             function (Process $process) {
                 // init
                 \ProcessManage\Log\ProcessLog::Record('info', $process, 'work init ... ');
