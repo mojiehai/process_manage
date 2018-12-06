@@ -39,6 +39,7 @@ class Manage
 
     /**
      * 设置为后台运行
+     * @return $this
      * @throws ProcessException
      */
     public function setBackground()
@@ -66,6 +67,8 @@ class Manage
         global $STDOUT, $STDERR;
         $STDOUT = fopen('/dev/null', 'a');
         $STDERR = fopen('/dev/null', 'a');
+
+        return $this;
     }
 
     /**

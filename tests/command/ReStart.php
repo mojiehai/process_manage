@@ -2,6 +2,8 @@
 
 namespace ProcessManage\Command\Action;
 
+use ProcessManage\Exception\ProcessException;
+use ProcessManage\Process\Manage;
 
 /**
  * restart 命令动作
@@ -17,7 +19,17 @@ class ReStart extends Action
      */
     public function handler()
     {
-        echo 'restart';
+        $config = [
+            // 进程基础配置
+            'baseTitle' => 'test',  // 进程基础名称
+        ];
+
+        try {
+            // 创建进程管理器
+            (new Manage($config))->restart();
+        } catch (ProcessException $e) {
+            echo $e->getExceptionAsString();
+        }
     }
 
     /**

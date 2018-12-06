@@ -15,7 +15,13 @@ abstract class Action
     use CommandTrait;
 
     /**
-     * 参数对象列表
+     * 参数数组，用来存储数据
+     * @var array
+     */
+    protected $params = [];
+
+    /**
+     * 附加参数对象列表
      * @var array
      */
     protected $options = [];
@@ -47,5 +53,26 @@ abstract class Action
      * @return void
      */
     abstract public function handler();
+
+
+    /**
+     * 设置参数
+     * @param $key
+     * @param $value
+     */
+    public function setParam($key, $value)
+    {
+        $this->params[$key] = $value;
+    }
+
+    /**
+     * 获取参数
+     * @param $key
+     * @return mixed
+     */
+    public function getParam($key)
+    {
+        return isset($this->params[$key]) ? $this->params[$key] : null;
+    }
 
 }

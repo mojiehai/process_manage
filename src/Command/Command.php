@@ -38,11 +38,8 @@ class Command
      */
     protected $commands = [];
 
-    public function __construct(Template $template = null)
+    public function __construct(Template $template)
     {
-        if (empty($template)) {
-            $template = new ManageProcessTemplate();
-        }
         $this->template = $template;
         $this->loadCommand();
     }

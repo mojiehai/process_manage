@@ -3,7 +3,6 @@
 namespace ProcessManage\Command\Options;
 
 use ProcessManage\Command\Action\Action;
-use ProcessManage\Exception\ProcessException;
 
 /**
  * d 参数的动作
@@ -41,7 +40,7 @@ class D extends Options
      */
     public function impactAction(Action $action)
     {
-        echo '-d';
+        $action->setParam('runInBackground', true);
     }
 
 }

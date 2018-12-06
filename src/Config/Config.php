@@ -18,7 +18,7 @@ abstract class Config
      * @param array $config
      * @return void
      */
-    public static function loadConfig(array $config)
+    public static function LoadConfig(array $config)
     {
         foreach ($config as $configField => $configValue) {
             if (isset(static::$$configField)) {
