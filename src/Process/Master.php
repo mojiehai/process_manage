@@ -263,7 +263,7 @@ class Master extends Process
     ############################## 当前进程操作 ###############################
     /**
      * 根据当前子进程数，检查并fork出worker进程
-     * @throws Exception
+     * @throws ProcessException
      */
     protected function fork()
     {
@@ -272,7 +272,9 @@ class Master extends Process
             // 已经检查，当前不需要再次检查
             $this->isCheckWorker = false;
             // 设置下次轮询的闹钟
-            pcntl_alarm($this->checkWorkerInterval);
+            if ($this->checkWorkerInterval > 0) {
+                pcntl_alarm($this->checkWorkerInterval);
+            }
             // 循环开启子进程
             while ($this->isAddWorker()) {
                 $workerPid = pcntl_fork();  // fork出子进程
@@ -302,8 +304,10 @@ class Master extends Process
                         // 启动子进程任务
                         $worker = new Worker($this->config);
                         $worker->setWorkInit($this->closureInit)->setWork($this->closure)->run();
-                    } catch (Exception $e){
-                        $msg = $e->getExceptionAsString();
+                    } catch (ProcessException $processException) {
+                        // 已经记录过日志，可以不用记录
+                    } catch (Exception $exception){
+                        $msg = $exception->getExceptionAsString();
                         ProcessLog::Record('error', $worker, $msg);
                     } finally {
                         exit();
@@ -382,7 +386,7 @@ class Master extends Process
     /**
      * 工作开始
      * @return void
-     * @throws Exception
+     * @throws ProcessException
      */
     protected function runHandler()
     {
@@ -408,6 +412,14 @@ class Master extends Process
             // 是否需要重启
             if ($this->isExpectRestart()) {
                 $this->restart();
+            }
+
+            // 检测子进程时间间隔如果<0，则表示子进程不需要检测重启，则当子进程全部执行完毕后，退出主进程
+            if ($this->checkWorkerInterval <= 0) {
+                $this->checkWorkers();
+                if (empty($this->workers)) {
+                    $this->setStop();
+                }
             }
 
             // 是否需要停止

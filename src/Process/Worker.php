@@ -62,7 +62,6 @@ class Worker extends Process
 
     /**
      * 工作开始
-     * @throws ProcessException
      */
     protected function runHandler()
     {

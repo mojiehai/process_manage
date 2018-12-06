@@ -75,7 +75,7 @@ class ProcessLog extends Log
     /**
      * process记录日志
      * @param string $type 日志级别
-     * @param \stdClass $obj 进程对象
+     * @param object $obj 对象
      * @param string $content 内容
      * @param string $fileName 日志文件名
      * @return mixed

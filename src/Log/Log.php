@@ -95,14 +95,8 @@ class Log
     {
         $logRoot = LogConfig::$LogBaseRoot;
         if (!is_dir($logRoot)) {
-            $mkdir = mkdir($logRoot, 0777, true);
-            if (!$mkdir) {
-                throw new Exception($logRoot . ' 不可写');
-            }
-            $chmod = chmod($logRoot, 0777);
-            if (!$chmod) {
-                throw new Exception($logRoot . ' 权限不足');
-            }
+            mkdir($logRoot, 0777, true);
+            chmod($logRoot, 0777);
         }
         return $logRoot;
     }

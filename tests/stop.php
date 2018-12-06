@@ -2,9 +2,8 @@
 
 require __DIR__."/bootstrap.php";
 
-use ProcessManage\Exception\Exception;
+use ProcessManage\Exception\ProcessException;
 use ProcessManage\Process\Manage;
-use ProcessManage\Process\Process;
 
 $config = [
     // 进程基础配置
@@ -14,6 +13,6 @@ $config = [
 try {
     // 创建进程管理器
     (new Manage($config))->stop();
-} catch (Exception $e) {
+} catch (ProcessException $e) {
     echo $e->getExceptionAsString();
 }
