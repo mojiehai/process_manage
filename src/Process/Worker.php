@@ -70,8 +70,13 @@ class Worker extends Process
 
         $work = $this->workInit();
         while (true) {
+            // 检测信号
+            pcntl_signal_dispatch();
+
             // 执行任务
-            $this->workExecute($work);
+            if (!$this->isExpectStop()) {
+                $this->workExecute($work);
+            }
 
             $time = time();
 

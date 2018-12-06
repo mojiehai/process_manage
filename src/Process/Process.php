@@ -2,6 +2,7 @@
 
 namespace ProcessManage\Process;
 
+use ProcessManage\Config\ProcessConfig;
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Log\ProcessLog;
 
@@ -47,7 +48,7 @@ abstract class Process
      * 进程名称前缀
      * @var string
      */
-    protected $titlePrefix = 'pm';
+    protected $titlePrefix = '';
 
     /**
      * 进程基础名称(用来区分多个多进程任务)
@@ -98,6 +99,7 @@ abstract class Process
     public function __construct(array $config = [])
     {
         $this->status = self::STATUS_PREPARE;
+        $this->titlePrefix = ProcessConfig::$TitlePrefix;
         // 加载配置
         $this->config = $config;
         $this->configure();
@@ -122,7 +124,7 @@ abstract class Process
         $className = get_class($this);
         $classNameInfoArr = explode('\\', $className);
         $className = end($classNameInfoArr);
-        $titleArr = [$this->titlePrefix, $className, $this->baseTitle];
+        $titleArr = array_filter([$this->titlePrefix, $className, $this->baseTitle]);
         $this->title = implode(self::TITLE_DELIMITER, $titleArr);
     }
 

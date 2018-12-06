@@ -95,10 +95,8 @@ class Master extends Process
         if ($this->checkAlive()) {
             throw new ProcessException('process is already exists!');
         }
-        // 如果pid为0，则获取新pid
-        if (empty($this->pid)) {
-            $this->setNewPid();
-        }
+        // 获取新pid
+        $this->setNewPid();
         parent::init();
         $this->savePidToFile();
 
@@ -281,6 +279,8 @@ class Master extends Process
                 if ($workerPid > 0) {
                     // 该分支为父进程
                     $this->addWorker($workerPid);
+                    // 睡眠0.1s再启动下一个
+                    usleep(100000);
                 } else if ($workerPid == 0) {
                     $worker = null;
                     try {

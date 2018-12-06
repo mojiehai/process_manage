@@ -15,5 +15,11 @@ class ProcessConfig extends Config
      * 进程pid文件根目录
      * @var string
      */
-    public static $PidRoot = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'runtime'.DIRECTORY_SEPARATOR.'pid';
+    public static $PidRoot = '/tmp/pm/pid';
+
+    /**
+     * 进程前缀
+     * @var string
+     */
+    public static $TitlePrefix = 'process_m';
 }

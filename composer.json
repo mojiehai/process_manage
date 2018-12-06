@@ -14,7 +14,8 @@
         "ext-pcntl": "*",
         "ext-posix": "*",
         "ext-json": "*",
-        "ext-mbstring": "*"
+        "ext-mbstring": "*",
+        "ext-curl": "*"
     },
     "autoload": {
         "psr-4": {"ProcessManage\\": "./src/"}
