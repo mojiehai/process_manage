@@ -11,6 +11,7 @@ use ProcessManage\Command\Options\Options;
  * 模板格式:
  * <>包裹着为必填参数，参数可选值用 | 分隔
  * []包裹着为选填参数，参数可选值用 | 分隔
+ * 不可用--help  该参数为预定义参数,预定义参赛权重最高
  *
  * 不带 -     表示行为参数
  *          1. 行为参数只能有一个
@@ -73,6 +74,22 @@ abstract class Template
      * @return string
      */
     abstract public function getTemplateStr();
+
+    /**
+     * 获取预定义命令
+     * @return array
+     */
+    public function getOtherCommands()
+    {
+        return [
+            '--help' => [
+                'desc' => 'to display the list of available commands, please use the list command.',
+                'func' => function(Parse $parse) {
+                    exit($parse->getDescription());
+                }
+            ],
+        ];
+    }
 
     /**
      * 根据action获取类

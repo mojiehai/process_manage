@@ -16,6 +16,7 @@ class ReStart extends Action
     /**
      * 执行该命令的动作
      * @return void
+     * @throws ProcessException
      */
     public function handler()
     {
@@ -24,12 +25,8 @@ class ReStart extends Action
             'baseTitle' => 'test',  // 进程基础名称
         ];
 
-        try {
-            // 创建进程管理器
-            (new Manage($config))->restart();
-        } catch (ProcessException $e) {
-            echo $e->getExceptionAsString();
-        }
+        // 创建进程管理器
+        (new Manage($config))->restart();
     }
 
     /**

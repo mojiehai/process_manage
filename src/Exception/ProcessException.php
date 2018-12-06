@@ -16,7 +16,7 @@ class ProcessException extends Exception
     public function __construct(string $message = "", int $code = 0, Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
-        $this->message = 'pid: '.posix_getpid(). '    ppid: '.posix_getppid(). '    title:'.cli_get_process_title() . '    '.$this->message;
+        $this->preMessage = 'pid: '.posix_getpid(). '    ppid: '.posix_getppid(). '    title:'.cli_get_process_title() . '    ';
         ProcessLog::error($this->getExceptionAsString());
     }
 

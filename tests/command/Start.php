@@ -18,6 +18,7 @@ class Start extends Action
     /**
      * 执行该命令的动作
      * @return void
+     * @throws ProcessException
      */
     public function handler()
     {
@@ -36,30 +37,26 @@ class Start extends Action
             'limitSeconds' => 10800,    // 工作进程最大执行时长(秒)(跑3个小时重启)
         ];
 
-        try {
-            // 创建进程管理器
-            $manage = (new Manage($config))
-                ->setWorkInit(
-                // 工作内容初始化
-                    function (Process $process) {
-                        // init
-                        \ProcessManage\Log\ProcessLog::Record('info', $process, 'work init ... ');
-                    }
-                )
-                ->setWork(
-                // 执行的工作内容
-                    function(Worker $process) {
-                        // work
-                        \ProcessManage\Log\ProcessLog::Record('info', $process, 'work run ... ');
-                    });
-            if ($this->getParam('runInBackground')) {
-                // 后台运行
-                $manage->setBackground();
-            }
-            $manage->start();
-        } catch (ProcessException $e) {
-            echo $e->getExceptionAsString();
+        // 创建进程管理器
+        $manage = (new Manage($config))
+            ->setWorkInit(
+            // 工作内容初始化
+                function (Process $process) {
+                    // init
+                    \ProcessManage\Log\ProcessLog::Record('info', $process, 'work init ... ');
+                }
+            )
+            ->setWork(
+            // 执行的工作内容
+                function(Worker $process) {
+                    // work
+                    \ProcessManage\Log\ProcessLog::Record('info', $process, 'work run ... ');
+                });
+        if ($this->getParam('runInBackground')) {
+            // 后台运行
+            $manage->setBackground();
         }
+        $manage->start();
     }
 
     /**

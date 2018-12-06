@@ -42,6 +42,25 @@ class Parse
         $this->parseTemplate();
     }
 
+
+    /**
+     * 执行预定义命令(权重最高)
+     * @param array $commands 去掉文件名的$argv
+     */
+    public function execOther(array $commands)
+    {
+        $otherList = $this->template->getOtherCommands();
+        $otherCommand = array_keys($otherList);
+        foreach ($commands as $v) {
+            foreach ($otherCommand as $com) {
+                if ($v == $com) {
+                    $func = $otherList[$com]['func'];
+                    $func($this);
+                }
+            }
+        }
+    }
+
     /**
      * 获取用户命令的行为
      * @param array $commands 去掉文件名的$argv
@@ -67,7 +86,7 @@ class Parse
 
     /**
      * 获取用户命令的附加参数
-     * @param array $commands
+     * @param array $commands 去掉文件名的$argv
      * @return array [string => null, string => null, ...]
      * @throws CommandException
      */
@@ -275,7 +294,6 @@ class Parse
         return mb_substr($item, 0, mb_strlen($item) - 1);
     }
 
-
     /**
      * 获取模板详情
      * @return string
@@ -283,31 +301,37 @@ class Parse
     public function getDescription()
     {
         $actionList = $this->actionList;
-        $str = "action: \n";
+        $str = "Usage: ".$this->template->getTemplateStr().PHP_EOL;
+        $str .= "action: ".PHP_EOL;
         foreach ($actionList as $v) {
             $className = $this->template->mapping['action'][$v];
             $cmd = $className::getCommandStr();
             $desc = $className::getCommandDescription();
-            $cmdStr = "  ".$cmd;
-            while(mb_strlen($cmdStr) < 15) {
-                $cmdStr .= ' ';
-            }
-            $str .= $cmdStr.' '.$desc."\n";
+            $cmdStr = str_pad("  " . $cmd, 15, ' ');
+            $str .= $cmdStr.' '.$desc.PHP_EOL;
         }
 
         $optionsList = $this->optionsList;
         $optionsList = $this->mergeArray($optionsList['must'], $optionsList['notMust'], 2);
-        $str .= "options: \n";
+        $str .= "options: ".PHP_EOL;
         foreach ($optionsList as $v) {
             $className = $this->template->mapping['options'][$v];
             $cmd = $className::getCommandStr();
             $desc = $className::getCommandDescription();
-            $cmdStr = "  -".$cmd;
-            while(mb_strlen($cmdStr) < 15) {
-                $cmdStr .= ' ';
-            }
-            $str .= $cmdStr.' '.$desc."\n";
+            $cmdStr = str_pad("  -" . $cmd, 15, ' ');
+            $str .= $cmdStr.' '.$desc.PHP_EOL;
         }
+
+        $otherList = $this->template->getOtherCommands();
+        $str .= "other: ".PHP_EOL;
+        foreach ($otherList as $k => $v) {
+            $cmd = $k;
+            $desc = $v['desc'];
+            $cmdStr = str_pad('  '.$cmd, 15, ' ');
+            $str .= $cmdStr. ' ' .$desc .PHP_EOL;
+        }
+
+        $str .= PHP_EOL;
         return $str;
     }
 

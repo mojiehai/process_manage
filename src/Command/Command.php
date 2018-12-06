@@ -94,6 +94,9 @@ class Command
     public function run()
     {
         try {
+            // 执行other(预定义命令)
+            $this->template->parse->execOther($this->commands);
+
             // 获取action
             $actionName = $this->template->parse->getAction($this->commands);
             $action = $this->template->getActionClass($actionName);
@@ -101,6 +104,7 @@ class Command
                 throw new CommandException("ERROR: command action '".$actionName."' not found");
             }
 
+            // 获取options
             $optionNames = $this->template->parse->getOptions($this->commands);
             foreach ($optionNames as $k => $v) {
                 $options = $this->template->getOptionsClass($k);
@@ -115,6 +119,8 @@ class Command
 
         } catch (CommandException $commandException) {
             echo $commandException->showErrors($this);
+        } catch (\Exception $exception) {
+            echo 'Error: '.$exception->getMessage().PHP_EOL;
         }
     }
 
@@ -124,10 +130,7 @@ class Command
      */
     public function showHelps()
     {
-        $str = "";
-        $str .= "Usage: ".$this->getExecFileName()." ".$this->template->getTemplateStr()."\n";
-        $str .= $this->template->getDescription();
-        return $str;
+        return $this->template->getDescription();
     }
 
 }

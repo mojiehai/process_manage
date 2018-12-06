@@ -37,6 +37,7 @@ abstract class Action
 
     /**
      * 执行操作
+     * @throws \Exception
      */
     public function exec()
     {
@@ -51,6 +52,7 @@ abstract class Action
     /**
      * 执行该命令的程序
      * @return void
+     * @throws \Exception
      */
     abstract public function handler();
 
