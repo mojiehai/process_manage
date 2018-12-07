@@ -404,6 +404,10 @@ class Master extends Process
             $workerPid = pcntl_wait($status, WUNTRACED);//不阻塞
             if ($workerPid > 0) {
                 $this->removeWorker($workerPid);
+                // 如果检测子进程间隔>0，说明子进程需要长存，则需要再次检测子进程
+                if ($this->checkWorkerInterval > 0) {
+                    $this->isCheckWorker = true;
+                }
             }
 
             // 调用信号处理程序
