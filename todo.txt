@@ -1,0 +1,6 @@
+1.1.0
+
+1, master进程应该等所以worker进程退出后才退出(循环kill),cli还需要输出信息
+2, 增加status命令
+bug: restart 无法重新载入新文件
+ok bug: master stop 时，不能在发送指令后就删除进程id，应该统一使用checkWorker检测

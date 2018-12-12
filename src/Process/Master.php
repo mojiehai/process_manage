@@ -161,12 +161,19 @@ class Master extends Process
     ############################## 子进程操作 ###############################
     /**
      * 检查工作进程，清理不存在的进程
+     * @param int $workerPid 大于0时，检测该pid到进程; 小于0时，检测所以子进程
      */
-    protected function checkWorkers()
+    protected function checkWorkers(int $workerPid = 0)
     {
-        foreach ($this->workers as $k => $v) {
-            if (!static::isAlive($v)) {
-                unset($this->workers[$k]);
+        if ($workerPid > 0) {
+            if (!static::isAlive($workerPid)) {
+                $this->removeWorker($workerPid);
+            }
+        } else {
+            foreach ($this->workers as $k => $v) {
+                if (!static::isAlive($v)) {
+                    $this->removeWorker($v);
+                }
             }
         }
     }
@@ -188,12 +195,11 @@ class Master extends Process
 
     /**
      * 添加子进程号
-     * @param $pid
+     * @param int $pid
      */
-    protected function addWorker($pid)
+    protected function addWorker(int $pid)
     {
-        $this->workers[] = $pid;
-        $this->workers = array_values($this->workers);  // 重新排列下标，防止下标过大
+        $this->workers[$pid] = $pid;
     }
 
     /**
@@ -202,11 +208,7 @@ class Master extends Process
      */
     protected function removeWorker($pid)
     {
-        foreach ($this->workers as $k => $v) {
-            if ($pid == $v) {
-                unset($this->workers[$k]);
-            }
-        }
+        if (isset($this->workers[$pid])) unset($this->workers[$pid]);
     }
 
     /**
@@ -219,9 +221,7 @@ class Master extends Process
         if ($workerPid == 0) {
             $isStop = true;
             foreach ($this->workers as $k => $v) {
-                if ($res = posix_kill($v, SIGTERM)) {
-                    unset($this->workers[$k]);
-                } else {
+                if (!posix_kill($v, SIGTERM)) {
                     // kill worker $v failed
                     ProcessLog::Record('error', $this, 'kill worker ('.$v.') failed');
                     $isStop = false;
@@ -243,9 +243,8 @@ class Master extends Process
         if ($workerPid == 0) {
             $isStop = true;
             foreach ($this->workers as $k => $v) {
-                if ($res = posix_kill($v, SIGKILL)) {
-                    unset($this->workers[$k]);
-                    ProcessLog::Record('warning', $this, 'force kill worker ('.$v.')');
+                if (posix_kill($v, SIGKILL)) {
+                    ProcessLog::Record('warning', $this, 'force kill worker ('.$v.') command ok');
                 } else {
                     // kill worker $v failed
                     ProcessLog::Record('error', $this, 'kill -9 worker ('.$v.') failed');
@@ -328,7 +327,7 @@ class Master extends Process
         // 停止所有子进程
         $this->stopWorkers();
         $isStop = false;
-        // 检测10次 共5s
+        // 检测5次 共5s
         for ($i = 1; $i <= 5; $i++) {
             // 睡眠1s，等待子进程安全退出
             sleep(1);
@@ -403,7 +402,7 @@ class Master extends Process
             // 子进程退出或者有信号过来，则返回，否则阻塞
             $workerPid = pcntl_wait($status, WUNTRACED);//不阻塞
             if ($workerPid > 0) {
-                $this->removeWorker($workerPid);
+                $this->checkWorkers($workerPid);
                 // 如果检测子进程间隔>0，说明子进程需要长存，则需要再次检测子进程
                 if ($this->checkWorkerInterval > 0) {
                     $this->isCheckWorker = true;
