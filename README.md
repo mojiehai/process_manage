@@ -103,3 +103,43 @@ php多进程管理器
 > 注意：baseTitle(进程基础名称)为进程的标识，start/stop/restart指定的名称必须相同。
 
 ## 说明
+1. 参数说明
+	1. 固定配置（通过Config类的子类加载，作用域为全局，可在业务入口文件中指定）。例如`ProcessConfig::LoadConfig(["TitlePrefix" => "test"])`
+		- 进程配置，通过`ProcessConfig::LoadConfig($configArray)`加载，配置项如下：
+
+			| 配置项 | 描述 | 类型 | 默认值 |
+			| --- | --- | --- | --- |
+			| PidRoot | 存放master进程pid文件根目录 | string | /tmp/pm/pid |
+			| TitlePrefix | 进程名称前缀 | string | process_m |
+			
+		- 日志配置，通过`LogConfig::LoadConfig($configArray)`加载，配置项如下:
+			
+			| 配置项                  | 描述                               | 类型    | 默认值                     |
+			| ----------------------- | ---------------------------------- | ------- | -------------------------- |
+			| ENABLED                 | 是否启动日志                       | boolean | true                       |
+			| LogBaseRoot             | 日志文件根目录                     | string  | process_manage/runtime/log |
+			| Debug_FileNamePrefix    | debug日志级别对应的文件名前缀      | string  |                            |
+			| Info_FileNamePrefix     | info日志级别对应的文件名前缀       | string  |                            |
+			| Notice_FileNamePrefix   | notice日志级别对应的文件名前缀     | string  |                            |
+			| Warning_FileNamePrefix  | warning日志级别对应的文件名前缀    | string  |                            |
+			| Error_FileNamePrefix    | error日志级别对应的文件名前缀      | string  |                            |
+			| Fatal_FileNamePrefix    | fatal日志级别对应的文件名前缀      | string  |                            |
+			| LogFileName             | 普通日志文件默认文件名             | string  | run                        |
+			| LogDeLimiterRule        | 普通日志文件分隔规则，默认按天分隔 | string  | Y-m-d                      |
+			| ProcessLogFileName      | 进程日志文件默认文件名             | string  | process                    |
+			| ProcessLogDeLimiterRule | 进程日志文件分隔规则，默认按天分隔 | string  | Y-m-d                      |
+
+			
+	2. 非固定配置（通过manage构造函数加载进去，作用域为本次manage管理的进程）
+
+		| 配置项              | 描述                                                                                                                         | 类型   | 是否必填 | 默认值               |
+		| ------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------ | -------- | -------------------- |
+		| titlePrefix         | 进程名称前缀，优先级大于固定配置                                                                                             | string | 否       | (默认读取固定配置值) |
+		| baseTitle           | 进程基础名称，用来区分多个进程管理器                                                                                         | string | 否       | process              |
+		| checkWorkerInterval | master：检查工作进程的时间间隔，单位：秒                                                                                     | int    | 否       | 300                  |
+		| maxWorkerNum        | master：最大工作进程数                                                                                                       | int    | 否       | 4                    |
+		| executeTimes        | worker：工作进程最大工作次数(即工作回调最大回调次数) 0为无限循环执行，(执行完指定次数后退出子进程，等待master进程重启子进程) | int    | 否       | 1                    |
+		| executeUSleep       | worker：工作进程每次执行后睡眠时间 单位：微秒数  0为不睡眠                                                                   | int    | 否       | 200000               |
+		| limitSeconds        | worker：工作进程最大执行时长 单位：秒 0为不限制(执行完指定次数后退出子进程，等待master进程重启子进程)                        | int    | 否       | 0                    |
+
+2. 方法说明

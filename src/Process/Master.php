@@ -59,7 +59,7 @@ class Master extends Process
      * 允许配置的变量
      * @var array
      */
-    protected $configNameList = ['pidFileDir', 'checkWorkerInterval', 'maxWorkerNum'];
+    protected $configNameList = ['checkWorkerInterval', 'maxWorkerNum'];
 
     /**
      * 加载配置
