@@ -200,7 +200,7 @@ php多进程管理器
 	
 		| 方法名                  | 参数说明 | 返回值 | 描述 |
         | ----------------------- | -------- | ------ | ---- |
-        | getExecuteTimes() : int | 无       | int    |      |
+        | getExecuteTimes() : int | 无       | int    |  获取当前执行次数 |
 
 	- Master类(继承Process类)
 
