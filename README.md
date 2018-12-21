@@ -8,7 +8,7 @@ php多进程管理器
 基于php-cli模式实现master(父进程)-worker(子进程)的多进程管理器。
 - 创建：一个master fork出多个worker
 - 运行：
-    - master通过信号(signal)控制多个worker的生命周期(master会阻塞的等待信号或者子进程)
+    - master通过信号(signal)控制多个worker的生命周期(master会阻塞的等待信号或者子进程退出)
     - worker会在生命周期中执行预定的任务
       
 ## 依赖
