@@ -143,45 +143,44 @@ php多进程管理器
 		| limitSeconds        | worker：工作进程最大执行时长 单位：秒 0为不限制(执行完指定次数后退出子进程，等待master进程重启子进程)                        | int    | 否       | 0                    |
 
 2. 方法说明
-    - Manage类
-		- setBackground(void) : Manage
-			- 描述：设置为后台运行，该方法执行完毕后，当前进程就会脱离终端，成为init进程的子进程。
-		- setWorkInit(\Closure $closure = null) : Manage
-			- 描述：设置工作进程初始化的回调方法，这个回调方法会在worker进程对象初始化完成后调用。一般该回调方法中初始化一些资源数据，例如数据库连接，给当前worker进程的工作回调使用。该回调方法接收一个参数，为当前的worker进程对象(Worker)。
-			- 例如：
-				```php
-				(new Manage($config))->setWorkInit(
-					// 工作内容初始化
-					function (Worker $process) {
-						// init
-						$link = mysqli_connect(...);
-						...
-						$redis = new Redis(...);
-						...
-						return ['mysql' => $link, 'redis' => $redis];
-					}
-				)
-				```
-		- setWork(\Closure $closure = null) :  Manage
-			- 描述：设置工作进程工作回调，该回调会在setWorkInit设置的初始化回调后调用。该回调方法接收两个参数：第一个为当前的worker进程对象(Worker)，第二个为工作进程初始化的回调方法的返回值(建议在这个位置传递资源对象给工作回调)
-			- 例如：
-				```php
-				(new Manage($config))->setWork(
-					// 执行的工作内容
-					function(Worker $process, $result = []) {
-						// work
-						$mysqlLink = $result['mysql'];
-						$redisLink = $result['redis'];
-					})
-				)
-				```
-		- start(void) : void
-			- 描述：启动任务
-		- stop(void) : void
-			- 描述：停止任务
-		- restart(void) : void
-			- 描述：重启任务
+	- Manage类
+		
+		| 方法名                                         | 参数说明           | 返回值 | 描述                                                                                                                                                                                                                                  |
+		| ---------------------------------------------- | ------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+		| setBackground() :  Manage                      | 无                 | Manage | 设置为后台运行，该方法执行完毕后，当前进程就会脱离终端，成为init进程的子进程。                                                                                                                                                        |
+		| setWorkInit(\Closure $closure = null) : Manage | $closure：回调函数 | Manage | 设置工作进程初始化的回调方法，这个回调方法会在worker进程对象初始化完成后调用。一般该回调方法中初始化一些资源数据，例如数据库连接，给当前worker进程的工作回调使用。该回调方法接收一个参数，为当前的worker进程对象(Worker)。(示例见 [1.0](#s1.0) ) |          
+		| setWork(\Closure $closure = null) : Manage     | $closure：回调函数 | Manage | 设置工作进程工作回调，该回调会在setWorkInit设置的初始化回调后调用。该回调方法接收两个参数：第一个为当前的worker进程对象(Worker)，第二个为工作进程初始化的回调方法的返回值(建议在这个位置传递资源对象给工作回调)。(示例见 [1.1](#s1.1) )          |
+		| start() : void                                 | 无                 | 无     | 启动任务                                                                                                                                                                                                                              |
+		| stop() : void                                  | 无                 | 无     | 停止任务                                                                                                                                                                                                                              |
+		| restart() : void                              | 无                 | 无     | 重启任务                                                                                                                                                                                                                              |
 	
+		- 示例
+			- <a href='#s1.0'>1.0</a>
+			```php
+			(new Manage($config))->setWorkInit(
+				// 工作内容初始化
+				function (Worker $process) {
+					// init
+					$link = mysqli_connect(...);
+					...
+					$redis = new Redis(...);
+					...
+					return ['mysql' => $link, 'redis' => $redis];
+				}
+			 )
+			```
+			- <a href='#s1.1'>1.1</a>
+			```php
+			(new Manage($config))->setWork(
+				// 执行的工作内容
+				function(Worker $process, $result = []) {
+					// work
+					$mysqlLink = $result['mysql'];
+					$redisLink = $result['redis'];
+				})
+			 )
+			```
+			
 	- Process类
 		- setNewPid() : void
 			- 描述：重设pid(不需要手动调用)
