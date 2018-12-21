@@ -204,4 +204,108 @@ php多进程管理器
 
 	- Master类(继承Process类)
 
+
 ## 命令管理
+提供了一套命令管理的方案，通过实现部分接口即可接入
+
+1. 简述  
+    该方案为自定义命令，但是有部分预定义命令。
+    - 预定义命令：所有命令均有的基本行为，权重最高。预定义命令列表如下：
+        - `--help`: 查看命令列表
+    - 自定义命令：分为两个部分,一部分为行为参数(必填参数),一部分为附加参数(选填参数)。(需要定义模板)  
+        一条命令由一个明确的行为参数确定行为动作，若干个附加参数附带其他信息配置等。  
+        例如：`start -d` 行为参数为start，表示启动，附加参数`d`，表示后台运行  
+    
+2. 命令模板
+    - 格式:
+        - `<>`包裹着为必填参数(行为参数)，参数可选值用 | 分隔
+        - `[]`包裹着为选填参数(附加参数)，参数可选值用 | 分隔
+        - 附加参数前缀必须带上`-`
+    - 注意事项：
+        - 行为参数只能有一个，且只能在最前面一项
+        - 附加参数可以有多个，在行为参数后面
+        - 输入命令时，每个附加参数可以连上`=`号传递想输入的参数
+    - 例如：`<start|stop|restart> -[d] -[a|s]`
+    
+3. 构建命令
+    1. 创建行为动作类继承`ProcessManage\Command\Action`类，并实现下列方法：(一个行为动作一个类)
+        - handler()  
+            执行该命令的动作
+        - getCommandStr()  
+            返回命令字符串
+        - getCommandDescription()  
+            返回命令描述
+            
+    2. 创建附加参数类继承`ProcessManage\Command\Options`类，并实现下列方法：(一个附加参数一个类)
+        - getCommandStr()  
+            返回命令字符串
+        - getCommandDescription()  
+            返回命令描述
+        - impactAction(Action $action)  
+            影响action的行为方式，建议在这个方法中使用`$action->setParam('key', 'value');`给action设置参数，然后在action类的handler类中通过`$this->getParam($key)`获取参数，进行操作。例如：
+            ```php
+            /**
+             * 影响action的行为
+             * @param Action $action
+             * @return mixed
+             */
+            public function impactAction(Action $action)
+            {
+                $action->setParam('runInBackground', true);
+            }
+            ```
+
+    3. 创建模板类继承`ProcessManage\Command\Template`类，并实现下列内容：(一个命令一个模板)
+        - $mapping  
+            命令映射关系(把action、options映射到具体的类),例如：
+            ```php
+            /**
+             * 命令映射的类
+             * @var array
+             */
+            public $mapping = [
+                'action' => [
+                    'start' => '\ProcessManage\Command\Action\Start',
+                    'stop' => '\ProcessManage\Command\Action\Stop',
+                    'restart' => '\ProcessManage\Command\Action\ReStart',
+                ],
+                'options' => [
+                    'd' => '\ProcessManage\Command\Options\D',
+                ],
+            ];
+            ```
+        - getTemplateStr()  
+            定义模板格式，例如：
+            ```php
+            /**
+             * 获取模板内容
+             * @return string
+             */
+            public function getTemplateStr()
+            {
+                return '<start|stop|restart> -[d]';
+            }
+            ```
+      
+4. 使用
+    ```php
+    use ProcessManage\Command\Command;
+    use ProcessManage\Command\Template\ManageProcessTemplate;
+
+    $command = new Command(new ManageProcessTemplate());
+    $command->run();
+    ```
+
+5. 运行
+    ```
+    [root@localhost command]# php cmd.php --help
+    Usage: <start|stop|restart> -[d]
+    action: 
+      start         start process
+      stop          stop process
+      restart       restart process
+    options: 
+      -d            background running process
+    other: 
+      --help        to display the list of available commands, please use the list command.
+    ```
