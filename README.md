@@ -155,7 +155,7 @@ php多进程管理器
 		| restart() : void                              | 无                 | 无     | 重启任务                                                                                                                                                                                                                              |
 	
 		- 示例
-			- <a href='#s1.0'>1.0</a>
+			- <a name='s1.0'>1.0</a>
 			```php
 			(new Manage($config))->setWorkInit(
 				// 工作内容初始化
@@ -169,7 +169,7 @@ php多进程管理器
 				}
 			 )
 			```
-			- <a href='#s1.1'>1.1</a>
+			- <a name='s1.1'>1.1</a>
 			```php
 			(new Manage($config))->setWork(
 				// 执行的工作内容
