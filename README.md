@@ -143,3 +143,69 @@ php多进程管理器
 		| limitSeconds        | worker：工作进程最大执行时长 单位：秒 0为不限制(执行完指定次数后退出子进程，等待master进程重启子进程)                        | int    | 否       | 0                    |
 
 2. 方法说明
+    - Manage类
+		- setBackground(void) : Manage
+			- 描述：设置为后台运行，该方法执行完毕后，当前进程就会脱离终端，成为init进程的子进程。
+		- setWorkInit(\Closure $closure = null) : Manage
+			- 描述：设置工作进程初始化的回调方法，这个回调方法会在worker进程对象初始化完成后调用。一般该回调方法中初始化一些资源数据，例如数据库连接，给当前worker进程的工作回调使用。该回调方法接收一个参数，为当前的worker进程对象(Worker)。
+			- 例如：
+				```php
+				(new Manage($config))->setWorkInit(
+					// 工作内容初始化
+					function (Worker $process) {
+						// init
+						$link = mysqli_connect(...);
+						...
+						$redis = new Redis(...);
+						...
+						return ['mysql' => $link, 'redis' => $redis];
+					}
+				)
+				```
+		- setWork(\Closure $closure = null) :  Manage
+			- 描述：设置工作进程工作回调，该回调会在setWorkInit设置的初始化回调后调用。该回调方法接收两个参数：第一个为当前的worker进程对象(Worker)，第二个为工作进程初始化的回调方法的返回值(建议在这个位置传递资源对象给工作回调)
+			- 例如：
+				```php
+				(new Manage($config))->setWork(
+					// 执行的工作内容
+					function(Worker $process, $result = []) {
+						// work
+						$mysqlLink = $result['mysql'];
+						$redisLink = $result['redis'];
+					})
+				)
+				```
+		- start(void) : void
+			- 描述：启动任务
+		- stop(void) : void
+			- 描述：停止任务
+		- restart(void) : void
+			- 描述：重启任务
+	
+	- Process类
+		- setNewPid() : void
+			- 描述：重设pid(不需要手动调用)
+		- setWorkInit(\Closure $closure = null) : Process
+			- 描述：设置工作初始化回调(不需要手动调用)
+		- setWork(\Closure $closure = null) : Process
+			- 描述：设置工作回调(不需要手动调用)
+		- setStop() : void
+			- 描述：设置当前进程需要停止
+		- isExpectStop() : bool
+			- 描述：判断当前进程是否准备停止
+		- setRestart() : void
+			- 描述：设置当前进程需要重新启动
+		- isExpectRestart() : bool
+			- 描述：判断当前进程是否准备重启
+		- run() : void
+			- 描述：开始运行(不需要手动调用)
+		- checkAlive() : bool
+			- 描述：检测当前进程是否存在
+		- static isAlive(int $pid) : bool
+			- 描述：检测进程是否存在
+
+	- Worker类(继承Process类)
+		- getExecuteTimes() : int
+			- 描述：返回当前工作回调执行的次数
+
+	- Master类(继承Process类)
