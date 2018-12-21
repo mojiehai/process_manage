@@ -122,8 +122,8 @@ php多进程管理器
 			| Info_FileNamePrefix     | info日志级别对应的文件名前缀       | string  |                            |
 			| Notice_FileNamePrefix   | notice日志级别对应的文件名前缀     | string  |                            |
 			| Warning_FileNamePrefix  | warning日志级别对应的文件名前缀    | string  |                            |
-			| Error_FileNamePrefix    | error日志级别对应的文件名前缀      | string  |                            |
-			| Fatal_FileNamePrefix    | fatal日志级别对应的文件名前缀      | string  |                            |
+			| Error_FileNamePrefix    | error日志级别对应的文件名前缀      | string  | error_                           |
+			| Fatal_FileNamePrefix    | fatal日志级别对应的文件名前缀      | string  | fatal_                           |
 			| LogFileName             | 普通日志文件默认文件名             | string  | run                        |
 			| LogDeLimiterRule        | 普通日志文件分隔规则，默认按天分隔 | string  | Y-m-d                      |
 			| ProcessLogFileName      | 进程日志文件默认文件名             | string  | process                    |
