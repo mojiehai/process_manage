@@ -182,29 +182,26 @@ php多进程管理器
 			```
 			
 	- Process类
-		- setNewPid() : void
-			- 描述：重设pid(不需要手动调用)
-		- setWorkInit(\Closure $closure = null) : Process
-			- 描述：设置工作初始化回调(不需要手动调用)
-		- setWork(\Closure $closure = null) : Process
-			- 描述：设置工作回调(不需要手动调用)
-		- setStop() : void
-			- 描述：设置当前进程需要停止
-		- isExpectStop() : bool
-			- 描述：判断当前进程是否准备停止
-		- setRestart() : void
-			- 描述：设置当前进程需要重新启动
-		- isExpectRestart() : bool
-			- 描述：判断当前进程是否准备重启
-		- run() : void
-			- 描述：开始运行(不需要手动调用)
-		- checkAlive() : bool
-			- 描述：检测当前进程是否存在
-		- static isAlive(int $pid) : bool
-			- 描述：检测进程是否存在
+	
+        | 方法名                                          | 参数说明           | 返回值  | 描述                               |
+        | ----------------------------------------------- | ------------------ | ------- | ---------------------------------- |
+        | setNewPid() : void                              | 无                 | 无      | 重设pid(不需要手动调用)            |
+        | setWorkInit(\Closure $closure = null) : Process | $closure：回调函数 | Process | 设置工作初始化回调(不需要手动调用) |
+        | setWork(\Closure $closure = null) : Process     | $closure：回调函数 | Process | 设置工作回调(不需要手动调用)       |
+        | setStop() : void                                | 无                 | 无      | 设置当前进程需要停止               |
+        | isExpectStop() : bool                           | 无                 | bool    | 判断当前进程是否准备停止           |
+        | setRestart() : void                             | 无                 | 无      | 设置当前进程需要重新启动           |
+        | isExpectRestart() : bool                        | 无                 | bool    | 判断当前进程是否准备重启           |
+        | run() : void                                    | 无                 | 无      | 开始运行(不需要手动调用)           |
+        | checkAlive() : bool                             | 无                 | bool    | 检测当前进程是否存在               |
+        | static isAlive(int $pid) : bool                 |                    | bool    | 检测进程是否存在                   |
 
 	- Worker类(继承Process类)
-		- getExecuteTimes() : int
-			- 描述：返回当前工作回调执行的次数
+	
+		| 方法名                  | 参数说明 | 返回值 | 描述 |
+        | ----------------------- | -------- | ------ | ---- |
+        | getExecuteTimes() : int | 无       | int    |      |
 
 	- Master类(继承Process类)
+
+## 命令管理
