@@ -147,12 +147,12 @@ php多进程管理器
 		
 		| 方法名                                         | 参数说明           | 返回值 | 描述                                                                                                                                                                                                                                  |
 		| ---------------------------------------------- | ------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-		| setBackground() :  Manage                      | 无                 | Manage | 设置为后台运行，该方法执行完毕后，当前进程就会脱离终端，成为init进程的子进程。                                                                                                                                                        |
-		| setWorkInit(\Closure $closure = null) : Manage | $closure：回调函数 | Manage | 设置工作进程初始化的回调方法，这个回调方法会在worker进程对象初始化完成后调用。一般该回调方法中初始化一些资源数据，例如数据库连接，给当前worker进程的工作回调使用。该回调方法接收一个参数，为当前的worker进程对象(Worker)。(示例见 [1.0](#s1.0) ) |          
-		| setWork(\Closure $closure = null) : Manage     | $closure：回调函数 | Manage | 设置工作进程工作回调，该回调会在setWorkInit设置的初始化回调后调用。该回调方法接收两个参数：第一个为当前的worker进程对象(Worker)，第二个为工作进程初始化的回调方法的返回值(建议在这个位置传递资源对象给工作回调)。(示例见 [1.1](#s1.1) )          |
-		| start() : void                                 | 无                 | 无     | 启动任务                                                                                                                                                                                                                              |
-		| stop() : void                                  | 无                 | 无     | 停止任务                                                                                                                                                                                                                              |
-		| restart() : void                              | 无                 | 无     | 重启任务                                                                                                                                                                                                                              |
+		| setBackground()                      | 无                 | Manage | 设置为后台运行，该方法执行完毕后，当前进程就会脱离终端，成为init进程的子进程。                                                                                                                                                        |
+		| setWorkInit(\Closure $closure = null) | $closure：回调函数 | Manage | 设置工作进程初始化的回调方法，这个回调方法会在worker进程对象初始化完成后调用。一般该回调方法中初始化一些资源数据，例如数据库连接，给当前worker进程的工作回调使用。该回调方法接收一个参数，为当前的worker进程对象(Worker)。(示例见 [1.0](#s1.0) ) |          
+		| setWork(\Closure $closure = null)     | $closure：回调函数 | Manage | 设置工作进程工作回调，该回调会在setWorkInit设置的初始化回调后调用。该回调方法接收两个参数：第一个为当前的worker进程对象(Worker)，第二个为工作进程初始化的回调方法的返回值(建议在这个位置传递资源对象给工作回调)。(示例见 [1.1](#s1.1) )          |
+		| start()                                | 无                 | 无     | 启动任务                                                                                                                                                                                                                              |
+		| stop()                                 | 无                 | 无     | 停止任务                                                                                                                                                                                                                              |
+		| restart()                             | 无                 | 无     | 重启任务                                                                                                                                                                                                                              |
 	
 		- 示例
 			- <a name='s1.0'>1.0</a>
@@ -185,22 +185,22 @@ php多进程管理器
 	
         | 方法名                                          | 参数说明           | 返回值  | 描述                               |
         | ----------------------------------------------- | ------------------ | ------- | ---------------------------------- |
-        | setNewPid() : void                              | 无                 | 无      | 重设pid(不需要手动调用)            |
-        | setWorkInit(\Closure $closure = null) : Process | $closure：回调函数 | Process | 设置工作初始化回调(不需要手动调用) |
-        | setWork(\Closure $closure = null) : Process     | $closure：回调函数 | Process | 设置工作回调(不需要手动调用)       |
-        | setStop() : void                                | 无                 | 无      | 设置当前进程需要停止               |
-        | isExpectStop() : bool                           | 无                 | bool    | 判断当前进程是否准备停止           |
-        | setRestart() : void                             | 无                 | 无      | 设置当前进程需要重新启动           |
-        | isExpectRestart() : bool                        | 无                 | bool    | 判断当前进程是否准备重启           |
-        | run() : void                                    | 无                 | 无      | 开始运行(不需要手动调用)           |
-        | checkAlive() : bool                             | 无                 | bool    | 检测当前进程是否存在               |
-        | static isAlive(int $pid) : bool                 | $pid：进程pid       | bool    | 检测进程是否存在                   |
+        | setNewPid()                               | 无                 | 无      | 重设pid(不需要手动调用)            |
+        | setWorkInit(\Closure $closure = null)  | $closure：回调函数 | Process | 设置工作初始化回调(不需要手动调用) |
+        | setWork(\Closure $closure = null)      | $closure：回调函数 | Process | 设置工作回调(不需要手动调用)       |
+        | setStop()                                 | 无                 | 无      | 设置当前进程需要停止               |
+        | isExpectStop()                            | 无                 | bool    | 判断当前进程是否准备停止           |
+        | setRestart()                              | 无                 | 无      | 设置当前进程需要重新启动           |
+        | isExpectRestart()                         | 无                 | bool    | 判断当前进程是否准备重启           |
+        | run()                                     | 无                 | 无      | 开始运行(不需要手动调用)           |
+        | checkAlive()                              | 无                 | bool    | 检测当前进程是否存在               |
+        | static isAlive(int $pid)                  | $pid：进程pid       | bool    | 检测进程是否存在                   |
 
 	- Worker类(继承Process类)
 	
 		| 方法名                  | 参数说明 | 返回值 | 描述 |
         | ----------------------- | -------- | ------ | ---- |
-        | getExecuteTimes() : int | 无       | int    |  获取当前执行次数 |
+        | getExecuteTimes()  | 无       | int    |  获取当前执行次数 |
 
 	- Master类(继承Process类)
 
