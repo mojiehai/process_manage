@@ -194,7 +194,7 @@ php多进程管理器
         | isExpectRestart() : bool                        | 无                 | bool    | 判断当前进程是否准备重启           |
         | run() : void                                    | 无                 | 无      | 开始运行(不需要手动调用)           |
         | checkAlive() : bool                             | 无                 | bool    | 检测当前进程是否存在               |
-        | static isAlive(int $pid) : bool                 |                    | bool    | 检测进程是否存在                   |
+        | static isAlive(int $pid) : bool                 | $pid：进程pid       | bool    | 检测进程是否存在                   |
 
 	- Worker类(继承Process类)
 	
