@@ -24,10 +24,6 @@ php多进程管理器
 ## 使用
 1. 启动
     ```php
-    use ProcessManage\Exception\ProcessException;
-    use ProcessManage\Process\Manage;
-    use ProcessManage\Process\Process;
-    use ProcessManage\Process\Worker;
 
     $config = [
         // 进程基础配置
@@ -67,8 +63,6 @@ php多进程管理器
     ```
 2. 停止
     ```php
-    use ProcessManage\Exception\ProcessException;
-    use ProcessManage\Process\Manage;
     
     $config = [
         // 进程基础配置
@@ -84,8 +78,6 @@ php多进程管理器
     ```
 3. 平滑重启
     ```php
-    use ProcessManage\Exception\ProcessException;
-    use ProcessManage\Process\Manage;
     
     $config = [
         // 进程基础配置
