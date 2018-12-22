@@ -104,7 +104,21 @@ php多进程管理器
     
     try {
         // 创建进程管理器
-        (new Manage($config))->restart();
+        (new Manage($config))
+            ->setWorkInit(
+                // 工作内容初始化
+                function (Process $process) {
+                    // init
+                    \ProcessManage\Log\ProcessLog::Record('info', $process, 'work init ... ');
+                }
+            )
+            ->setWork(
+                // 执行的工作内容
+                function(Worker $process) {
+                    // work
+                    \ProcessManage\Log\ProcessLog::Record('info', $process, 'work run ... ');
+                })
+            ->restart();
     } catch (ProcessException $e) {
         echo $e->getExceptionAsString();
     }
