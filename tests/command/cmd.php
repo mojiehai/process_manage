@@ -1,6 +1,7 @@
 <?php
 
 require __DIR__ .'/..'. "/bootstrap.php";
+require __DIR__.'/Work.php';
 require __DIR__.'/Start.php';
 require __DIR__.'/ReStart.php';
 require __DIR__.'/Stop.php';

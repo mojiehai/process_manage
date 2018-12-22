@@ -117,8 +117,8 @@ class Manage
     public function stop()
     {
         $master = new Master($this->config);
-        if ($master->checkAlive()) {
-            if (posix_kill($master->pid, SIGUSR2)) {
+        if ($master->isAlive()) {
+            if ($master->setStop()) {
                 return true;
             } else {
                 throw new ProcessException('stop failure');
@@ -130,21 +130,21 @@ class Manage
 
     /**
      * restart命令动作
-     * @return bool
      * @throws ProcessException
      */
     public function restart()
     {
+        $this->stop();
         $master = new Master($this->config);
-        if ($master->checkAlive()) {
-            if (posix_kill($master->pid, SIGUSR1)) {
-                return true;
-            } else {
-                throw new ProcessException('restart failure');
+        $i = 0;
+        while($master->isAlive()) {
+            if ($i > 10) {
+                throw new ProcessException('failure to stop the master process!');
             }
-        } else {
-            throw new ProcessException('process is not exists!');
+            sleep(1);
+            $i ++;
         }
+        $this->start();
     }
     ################################## command action ####################################
 

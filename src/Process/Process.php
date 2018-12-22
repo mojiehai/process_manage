@@ -19,10 +19,9 @@ abstract class Process
      */
     const STATUS_PREPARE = 0;       // 准备
     const STATUS_INIT = 1;          // 初始化
-    const STATUS_RUN = 2;           // 运行
-    const STATUS_SET_RESTART = 3;   // 需要重启
-    const STATUS_SET_STOP = 4;      // 需要停止
-    const STATUS_STOPPED = 5;       // 已经停止
+    const STATUS_RUN = 2;           // 运行中
+    const STATUS_SET_STOP = 3;      // 需要停止
+    const STATUS_STOPPED = 4;       // 已经停止
 
 
     /**
@@ -95,15 +94,20 @@ abstract class Process
     /**
      * Process constructor.
      * @param array $config
+     * @param int $pid
      */
-    public function __construct(array $config = [])
+    public function __construct(array $config = [], int $pid = 0)
     {
         $this->status = self::STATUS_PREPARE;
         $this->titlePrefix = ProcessConfig::$TitlePrefix;
         // 加载配置
         $this->config = $config;
         $this->configure();
-        $this->setPid();
+        if ($pid > 0) {
+            $this->pid = $pid;
+        } else {
+            $this->setPid();
+        }
     }
 
     /**
@@ -133,13 +137,13 @@ abstract class Process
      */
     protected function setPid()
     {
-        $this->setNewPid();
+        $this->resetPid();
     }
 
     /**
      * 重设pid
      */
-    public function setNewPid()
+    public function resetPid()
     {
         $this->pid = posix_getpid();
     }
@@ -153,7 +157,7 @@ abstract class Process
         $this->status = self::STATUS_INIT;
         // 设置进程名称
         $this->setProcessTitle();
-        ProcessLog::Record('info', $this, 'init ok !');
+        ProcessLog::info('init ok !');
         return $this;
     }
 
@@ -192,13 +196,35 @@ abstract class Process
     }
 
     ###################### 进程状态 #######################
+
+    /**
+     * 强制停止进程(慎用,可能会造成工作进程数据丢失)
+     * @return bool
+     * @throws ProcessException
+     */
+    public function forceStop()
+    {
+        ProcessLog::warning('force stopping !!! ');
+        if (posix_kill($this->pid, SIGKILL)) {
+            return true;
+        } else {
+            throw new ProcessException('process is not exists!');
+        }
+    }
+
     /**
      * 设置进程需要停止
+     * @return bool
+     * @throws ProcessException
      */
     public function setStop()
     {
-        ProcessLog::Record('info', $this, 'stopping ... ');
-        $this->status = self::STATUS_SET_STOP;
+        ProcessLog::info('stopping ... ');
+        if (posix_kill($this->pid, SIGTERM)) {
+            return true;
+        } else {
+            throw new ProcessException('process is not exists!');
+        }
     }
 
     /**
@@ -215,35 +241,19 @@ abstract class Process
      */
     protected function stop()
     {
-        ProcessLog::Record('info', $this, 'stopped !!!');
+        ProcessLog::info('stopped !!!');
         exit();
     }
 
     /**
-     * 设置进程重新启动
-     */
-    public function setRestart()
-    {
-        ProcessLog::Record('info', $this, 'restarting ... ');
-        $this->status = self::STATUS_SET_RESTART;
-    }
-
-    /**
-     * 判断进程是否准备重启
+     * 判断进程是否正在运行
      * @return bool
      */
-    public function isExpectRestart()
+    public function isRun()
     {
-        return $this->status == self::STATUS_SET_RESTART;
+        return $this->status == static::STATUS_RUN;
     }
 
-    /**
-     * 重启当前进程
-     */
-    protected function restart()
-    {
-        ProcessLog::Record('info', $this, 'restarted');
-    }
     ###################### 进程状态 #######################
 
     /**
@@ -264,7 +274,7 @@ abstract class Process
             $this->setSignal();
             // 设置运行状态
             $this->status = self::STATUS_RUN;
-            ProcessLog::Record('info', $this, 'running ... ');
+            ProcessLog::info('running ... ');
             // 工作开始
             $this->runHandler();
         } else {
@@ -277,6 +287,20 @@ abstract class Process
      */
     protected function setSignal()
     {
+        // SIGTERM 程序结束(terminate、信号, 与SIGKILL不同的是该信号可以被阻塞和处理.
+        // 通常用来要求程序自己正常退出. shell命令kill缺省产生这个信号.
+        pcntl_signal(SIGTERM, [$this, 'stopHandler'], false);
+        // 程序终止(interrupt、信号, 在用户键入INTR字符(通常是Ctrl-C、时发出
+        pcntl_signal(SIGINT, [$this, 'stopHandler'], false);
+    }
+
+    /**
+     * stop信号
+     */
+    protected function stopHandler()
+    {
+        // 设置当前进程为需要停止状态
+        $this->status = self::STATUS_SET_STOP;
     }
 
     /**
@@ -289,9 +313,9 @@ abstract class Process
      * 检测当前进程是否存在
      * @return bool
      */
-    public function checkAlive()
+    public function isAlive()
     {
-        return static::isAlive($this->pid);
+        return static::CheckAlive($this->pid);
     }
 
 
@@ -300,7 +324,7 @@ abstract class Process
      * @param $pid
      * @return bool
      */
-    public static function isAlive($pid)
+    public static function CheckAlive($pid)
     {
         if (empty($pid)) {
             return false;

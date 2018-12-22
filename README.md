@@ -89,7 +89,17 @@ php多进程管理器
     
     $config = [
         // 进程基础配置
+        'titlePrefix' => 'process_m',   // 进程前缀
         'baseTitle' => 'test',  // 进程基础名称
+
+        // master 进程配置
+        'checkWorkerInterval' => 0,    // n秒检测一次进程(<=0则为不检测)
+        'maxWorkerNum' => 1,    //1个进程
+
+        // worker 进程配置
+        'executeTimes' => 1,    // 任务的最大执行次数(0为没有最大执行次数，一直执行)
+        'executeUSleep' => 10000000,  // 每次执行任务睡眠时间(微秒) 1s = 1 000 000 us (1s)
+        'limitSeconds' => 10800,    // 工作进程最大执行时长(秒)(跑3个小时重启)
     ];
     
     try {
@@ -185,16 +195,15 @@ php多进程管理器
 	
         | 方法名                                          | 参数说明           | 返回值  | 描述                               |
         | ----------------------------------------------- | ------------------ | ------- | ---------------------------------- |
-        | setNewPid()                               | 无                 | 无      | 重设pid(不需要手动调用)            |
+        | resetPid()                               | 无                 | 无      | 重设pid(不需要手动调用)            |
         | setWorkInit(\Closure $closure = null)  | $closure：回调函数 | Process | 设置工作初始化回调(不需要手动调用) |
         | setWork(\Closure $closure = null)      | $closure：回调函数 | Process | 设置工作回调(不需要手动调用)       |
-        | setStop()                                 | 无                 | 无      | 设置当前进程需要停止               |
+        | setStop()                                 | 无                 | 无      |  给当前进程对象发送停止信号              |
         | isExpectStop()                            | 无                 | bool    | 判断当前进程是否准备停止           |
-        | setRestart()                              | 无                 | 无      | 设置当前进程需要重新启动           |
-        | isExpectRestart()                         | 无                 | bool    | 判断当前进程是否准备重启           |
+        | isRun()                 | 无                 | 无      | 判断当前进程是否为正在运行状态           |
         | run()                                     | 无                 | 无      | 开始运行(不需要手动调用)           |
-        | checkAlive()                              | 无                 | bool    | 检测当前进程是否存在               |
-        | static isAlive(int $pid)                  | $pid：进程pid       | bool    | 检测进程是否存在                   |
+        | isAlive()                              | 无                 | bool    | 检测当前进程对象是否存在               |
+        | static CheckAlive(int $pid)                  | $pid：进程pid       | bool    | 检测进程是否存在                   |
 
 	- Worker类(继承Process类)
 	

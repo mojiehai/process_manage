@@ -61,71 +61,18 @@ class Worker extends Process
     }
 
     /**
-     * 工作开始
-     */
-    protected function runHandler()
-    {
-        $master = new Master($this->config);
-
-        $work = $this->workInit();
-        while (true) {
-            // 检测信号
-            pcntl_signal_dispatch();
-
-            // 执行任务
-            if (!$this->isExpectStop()) {
-                $this->workExecute($work);
-            }
-
-            $time = time();
-
-            // 如果设置了预计退出时间，则检测是否需要退出
-            if ($this->preExitTime > 0) {
-                if ($time >= $this->preExitTime) {
-                    $this->setStop();
-                }
-            }
-
-            // 如果限定了工作进程最大工作次数,则判断是否超出最大工作次数
-            if ($this->executeTimes > 0) {
-                if ($this->currentExecuteTimes >= $this->executeTimes) {
-                    $this->setStop();
-                }
-            }
-
-            // 检测信号
-            pcntl_signal_dispatch();
-
-            // 检测主进程是否存在，不存在则退出自己进程(补救操作,10s补救操作一次)
-            if (
-                $time % 10 == 0 &&
-                (!$this->isExpectStop()) &&
-                (!$master->checkAlive())
-            ) {
-                $this->setStop();
-            }
-
-            // 检测是否退出进程
-            if ($this->isExpectStop()) {
-                $this->stop();
-            }
-
-            // 睡眠
-            if ($this->executeUSleep > 0) {
-                usleep($this->executeUSleep);
-            }
-        }
-    }
-
-    /**
      * 执行工作初始化
      * @return mixed
      */
     protected function workInit()
     {
-        if (is_callable($this->closureInit)) {
-            $closure = $this->closureInit;
-            return $closure($this);
+        if ($this->isRun()) {
+            if (is_callable($this->closureInit)) {
+                $closure = $this->closureInit;
+                return $closure($this);
+            } else {
+                return null;
+            }
         } else {
             return null;
         }
@@ -137,12 +84,10 @@ class Worker extends Process
      */
     protected function workExecute($workInitReturn = null)
     {
-        if (is_callable($this->closure)) {
+        if ($this->isRun()) {
             $closure = $this->closure;
             $closure($this, $workInitReturn);
             $this->currentExecuteTimes++;
-        } else {
-            $this->setStop();
         }
     }
 
@@ -156,25 +101,93 @@ class Worker extends Process
     }
 
     /**
-     * 添加信号
+     * 工作开始
+     * @throws ProcessException
      */
-    protected function setSignal()
+    protected function runHandler()
     {
-        // 1、停止信号
-        // SIGTERM 程序结束(terminate、信号, 与SIGKILL不同的是该信号可以被阻塞和处理.
-        // 通常用来要求程序自己正常退出. shell命令kill缺省产生这个信号.
-        pcntl_signal(SIGTERM, [$this, 'stopHandler'], false);
-        // 程序终止(interrupt、信号, 在用户键入INTR字符(通常是Ctrl-C、时发出
-        pcntl_signal(SIGINT, [$this, 'stopHandler'], false);
+        $master = new Master($this->config);
+
+        $work = $this->workInit();
+        while (true) {
+            // 检测信号
+            pcntl_signal_dispatch();
+
+            // 执行任务
+            $this->workExecute($work);
+
+            // 检测运行状态
+            if ($this->checkNeedStop($master)) {
+                $this->setStop();
+            }
+
+            // 检测信号
+            pcntl_signal_dispatch();
+
+            // 检测是否退出进程
+            if ($this->isExpectStop()) {
+                $this->stop();
+            }
+
+            // 睡眠
+            $this->sleep();
+
+        }
     }
+
 
     /**
-     * 停止信号处理程序
+     * 检测当前运行情况是否需要停止
+     * @param Master $master master进程对象，主要用来补救操作
+     * @return bool
+     *  true表示当前进程需要设置停止，false表示当前进程还可以继续运行
      */
-    protected function stopHandler()
+    protected function checkNeedStop(Master $master)
     {
-        $this->setStop();
+        // 运行的情况下检测（已经设置当前状态需要停止的时候，检测就没有意义了）
+        if ($this->isRun()) {
+
+            $time = time();
+
+            // 如果设置了预计退出时间，则检测是否需要退出
+            if (
+                ($this->preExitTime > 0) &&
+                ($time >= $this->preExitTime)
+            ) {
+                return true;
+            }
+
+            // 如果限定了工作进程最大工作次数,则判断是否超出最大工作次数
+            if (
+                ($this->executeTimes > 0) &&
+                ($this->getExecuteTimes() >= $this->executeTimes)
+            ) {
+                return true;
+            }
+
+            // 补救检测（检测主进程是否存在，不存在则需要自己退出进程(补救操作,10s补救操作一次)）
+            if (
+                ($time % 10 == 0) &&
+                (!$master->isAlive())
+            ) {
+                return true;
+            }
+
+            return false;
+        } else {
+            return false;
+        }
     }
 
+
+    /**
+     * 睡眠
+     */
+    protected function sleep()
+    {
+        if ($this->executeUSleep > 0) {
+            usleep($this->executeUSleep);
+        }
+    }
 
 }

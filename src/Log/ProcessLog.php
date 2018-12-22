@@ -4,6 +4,7 @@ namespace ProcessManage\Log;
 
 use ProcessManage\Process\Manage;
 use ProcessManage\Process\Master;
+use ProcessManage\Process\Process;
 use ProcessManage\Process\Worker;
 use ProcessManage\Config\LogConfig;
 
@@ -14,12 +15,6 @@ use ProcessManage\Config\LogConfig;
  */
 class ProcessLog extends Log
 {
-
-    /**
-     * 调用日志的对象
-     * @var \stdClass
-     */
-    public static $obj = null;
 
     /**
      * 获取默认日志文件名
@@ -55,37 +50,21 @@ class ProcessLog extends Log
     {
         $levelArr = static::$LEVELS[$level];
 
+        $title = cli_get_process_title();
+        $pid = posix_getpid();
+
         switch (true) {
-            case (static::$obj instanceof Master):
-                $prefix = '['.$levelArr['name'].'][ '.(static::$obj)->title.' '.(static::$obj)->pid.' '.date('Y-m-d H:i:s', time()).']: ';
+            case (strpos($title, Process::TITLE_DELIMITER.'Master'.Process::TITLE_DELIMITER) !== false):
+                $prefix = '['.$levelArr['name'].'][ '.$title.' '.$pid.' '.date('Y-m-d H:i:s', time()).']: ';
                 break;
-            case (static::$obj instanceof Worker):
-                $prefix = '['.$levelArr['name'].'][ ---- '.(static::$obj)->title.' '.(static::$obj)->pid.' '.date('Y-m-d H:i:s', time()).']: ';
-                break;
-            case (static::$obj instanceof Manage):
-                $prefix = '['.$levelArr['name'].'][Manage '.date('Y-m-d H:i:s', time()).']: ';
+            case (strpos($title, Process::TITLE_DELIMITER.'Worker'.Process::TITLE_DELIMITER) !== false):
+                $prefix = '['.$levelArr['name'].'][ ---- '.$title.' '.$pid.' '.date('Y-m-d H:i:s', time()).']: ';
                 break;
             default:
                 $prefix = parent::getRowLogPrefix($level);
                 break;
         }
         return $prefix;
-    }
-
-    /**
-     * process记录日志
-     * @param string $type 日志级别
-     * @param object $obj 对象
-     * @param string $content 内容
-     * @param string $fileName 日志文件名
-     * @return mixed
-     */
-    public static function Record($type, $obj, $content, $fileName = '')
-    {
-        static::$obj = $obj;
-        $return = static::$type($content, $fileName);
-        static::$obj = null;
-        return $return;
     }
 
 }

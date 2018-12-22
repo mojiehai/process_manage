@@ -4,6 +4,7 @@ namespace ProcessManage\Command\Action;
 
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Process\Manage;
+use ProcessManage\Command\Options\Work;
 
 /**
  * stop 命令动作
@@ -20,13 +21,9 @@ class Stop extends Action
      */
     public function handler()
     {
-        $config = [
-            // 进程基础配置
-            'baseTitle' => 'test',  // 进程基础名称
-        ];
-
+        $work = new Work();
         // 创建进程管理器
-        (new Manage($config))->stop();
+        (new Manage($work->config))->stop();
     }
 
     /**
