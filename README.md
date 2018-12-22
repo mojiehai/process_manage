@@ -237,6 +237,8 @@ php多进程管理器
             返回命令描述
             
     2. 创建附加参数类继承`ProcessManage\Command\Options`类，并实现下列方法：(一个附加参数一个类)
+        - $param  
+            该附加参数中用户输入的值
         - getCommandStr()  
             返回命令字符串
         - getCommandDescription()  
