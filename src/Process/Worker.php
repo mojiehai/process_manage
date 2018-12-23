@@ -3,6 +3,7 @@
 namespace ProcessManage\Process;
 
 use ProcessManage\Exception\ProcessException;
+use ProcessManage\Process\ManageUtils\Status;
 
 /**
  * 工作进程
@@ -188,6 +189,17 @@ class Worker extends Process
         if ($this->executeUSleep > 0) {
             usleep($this->executeUSleep);
         }
+    }
+
+    /**
+     * 获取运行状态信息
+     * @return Status
+     */
+    protected function getRunStatus()
+    {
+        $status = parent::getRunStatus();
+        $status->workTimes = $this->getExecuteTimes();
+        return $status;
     }
 
 }

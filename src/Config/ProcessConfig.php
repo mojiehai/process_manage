@@ -22,4 +22,10 @@ class ProcessConfig extends Config
      * @var string
      */
     public static $TitlePrefix = 'process_m';
+
+    /**
+     * 进程状态文件根目录
+     * @var string
+     */
+    public static $StatusFileRoot = '/tmp/pm/status';
 }

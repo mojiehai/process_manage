@@ -128,6 +128,26 @@ class WorkerManage
     }
     #################################### fork ########################################
 
+    #################################### status ########################################
+    /**
+     * 保存进程的status
+     * @param int $pid
+     */
+    public function saveStatus(int $pid = 0)
+    {
+        if ($pid > 0) {
+            $worker = $this->get($pid);
+            if ($worker) {
+                $worker->saveStatus();
+            }
+        } else {
+            foreach ($this->workers as $k => $worker) {
+                $this->saveStatus($worker->pid);
+            }
+        }
+    }
+    #################################### status ########################################
+
     /**
      * 返回当前worker进程数量
      * @return int
@@ -184,6 +204,15 @@ class WorkerManage
         } else {
             return null;
         }
+    }
+
+    /**
+     * get workers
+     * @return Worker[]
+     */
+    public function getWorkers()
+    {
+        return $this->workers;
     }
 
     /**

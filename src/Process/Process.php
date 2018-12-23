@@ -5,6 +5,7 @@ namespace ProcessManage\Process;
 use ProcessManage\Config\ProcessConfig;
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Log\ProcessLog;
+use ProcessManage\Process\ManageUtils\Status;
 
 /**
  * 进程抽象类
@@ -92,6 +93,18 @@ abstract class Process
     protected $config = [];
 
     /**
+     * run start time
+     * @var int
+     */
+    protected $startTime = 0;
+
+    /**
+     * 进程类型(不带命名空间的类名)
+     * @var string
+     */
+    protected $processType = '';
+
+    /**
      * Process constructor.
      * @param array $config
      * @param int $pid
@@ -100,6 +113,12 @@ abstract class Process
     {
         $this->status = self::STATUS_PREPARE;
         $this->titlePrefix = ProcessConfig::$TitlePrefix;
+
+        // 进程类型
+        $className = get_class($this);
+        $classNameInfoArr = explode('\\', $className);
+        $this->processType = end($classNameInfoArr);
+
         // 加载配置
         $this->config = $config;
         $this->configure();
@@ -125,10 +144,7 @@ abstract class Process
         }
 
         // 生成title
-        $className = get_class($this);
-        $classNameInfoArr = explode('\\', $className);
-        $className = end($classNameInfoArr);
-        $titleArr = array_filter([$this->titlePrefix, $className, $this->baseTitle]);
+        $titleArr = array_filter([$this->titlePrefix, $this->processType, $this->baseTitle]);
         $this->title = implode(self::TITLE_DELIMITER, $titleArr);
     }
 
@@ -195,6 +211,13 @@ abstract class Process
     }
 
     ###################### 进程状态 #######################
+    /**
+     * 发送保存信息的信号
+     */
+    public function saveStatus()
+    {
+        posix_kill($this->pid, SIGUSR1);
+    }
 
     /**
      * 强制停止进程(慎用,可能会造成工作进程数据丢失)
@@ -272,6 +295,7 @@ abstract class Process
             $this->setSignal();
             // 设置运行状态
             $this->status = self::STATUS_RUN;
+            $this->startTime = time();
             ProcessLog::info('process start ok ! ');
             // 工作开始
             $this->runHandler();
@@ -290,6 +314,8 @@ abstract class Process
         pcntl_signal(SIGTERM, [$this, 'stopHandler'], false);
         // 程序终止(interrupt、信号, 在用户键入INTR字符(通常是Ctrl-C、时发出
         pcntl_signal(SIGINT, [$this, 'stopHandler'], false);
+        // 进程运行状态信息
+        pcntl_signal(SIGUSR1, [$this, 'statusHandler'], false);
     }
 
     /**
@@ -302,6 +328,31 @@ abstract class Process
             // 设置当前进程为需要停止状态
             $this->status = self::STATUS_SET_STOP;
         }
+    }
+
+    /**
+     * 获取运行状态类
+     * @return Status
+     */
+    protected function getRunStatus()
+    {
+        $status = new Status($this->titlePrefix, $this->baseTitle);
+        $status->type = $this->processType;
+        $status->pid = $this->pid;
+        $status->title = $this->title;
+        $status->memory = memory_get_usage();
+        $status->startTime = date('Y-m-d H:i:s', $this->startTime);
+        $status->runTime = time() - $this->startTime;
+        return $status;
+    }
+
+    /**
+     * 进程运行状态信息信
+     */
+    protected function statusHandler()
+    {
+        // 记录状态信息
+        $this->getRunStatus()->save();
     }
 
     /**

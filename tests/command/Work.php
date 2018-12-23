@@ -13,7 +13,7 @@ class Work
 
         // master 进程配置
         'checkWorkerInterval' => 180,    // n秒检测一次进程(<=0则为不检测)
-        'maxWorkerNum' => 1,    //1个进程
+        'maxWorkerNum' => 2,    //2个进程
 
         // worker 进程配置
         'executeTimes' => 0,    // 任务的最大执行次数(0为没有最大执行次数，一直执行)

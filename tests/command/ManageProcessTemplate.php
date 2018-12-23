@@ -20,6 +20,7 @@ class ManageProcessTemplate extends Template
             'start' => '\ProcessManage\Command\Action\Start',
             'stop' => '\ProcessManage\Command\Action\Stop',
             'restart' => '\ProcessManage\Command\Action\ReStart',
+            'status' => '\ProcessManage\Command\Action\Status',
         ],
         'options' => [
             'd' => '\ProcessManage\Command\Options\D',
@@ -32,6 +33,6 @@ class ManageProcessTemplate extends Template
      */
     public function getTemplateStr()
     {
-        return '<start|stop|restart> -[d]';
+        return '<start|stop|restart|status> -[d]';
     }
 }

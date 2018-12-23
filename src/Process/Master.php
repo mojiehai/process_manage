@@ -5,6 +5,7 @@ namespace ProcessManage\Process;
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Log\ProcessLog;
 use ProcessManage\Exception\Exception;
+use ProcessManage\Process\ManageUtils\Status;
 use ProcessManage\Process\MasterUtils\PidFileStorage;
 use ProcessManage\Process\MasterUtils\WorkerManage;
 
@@ -113,6 +114,26 @@ class Master extends Process
         return $this;
     }
 
+    /**
+     * 获取所有进程状态信息
+     * @return array
+     * [
+     *  'Master' => [
+     *      123 => ['pid' => 123, ...]
+     *  ],
+     *  'Worker' => [
+     *      1232 => ['pid' => 1232, ...],
+     *      1233 => ['pid' => 1233, ...],
+     *      1234 => ['pid' => 1234, ...],
+     *      ...
+     *  ]
+     * ]
+     */
+    public function getAllStatus()
+    {
+        $status = new Status($this->titlePrefix, $this->baseTitle);
+        return $status->read();
+    }
 
     ############################## fork操作 ###############################
     /**
@@ -269,6 +290,34 @@ class Master extends Process
     protected function checkHandler()
     {
         $this->isCheckWorker = true;
+    }
+
+    /**
+     * 获取运行状态信息
+     * @return Status
+     */
+    protected function getRunStatus()
+    {
+        $status = parent::getRunStatus();
+        $pid = [];
+        foreach ($this->workerManage->getWorkers() as $k => $v) {
+            $pid[] = $v->pid;
+        }
+        $status->workerPid = implode(',', $pid);
+        return $status;
+    }
+
+    /**
+     * 进程运行状态信息信
+     */
+    protected function statusHandler()
+    {
+        // 检测子进程状态
+        $this->workerManage->recyclingAllWorker();
+        // 记录状态信息
+        $this->getRunStatus()->reSave();
+        // 发送信号让子进程记录状态信息
+        $this->workerManage->saveStatus();
     }
     ########################## 信号处理程序 ##############################
 
