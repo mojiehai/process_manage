@@ -219,23 +219,23 @@ php多进程管理器
                 ```
                 [root@localhost command]# php cmd.php status
                 Master
-                  type      pid      title                    memory(m)         start time             run time(s)    worker count
-                  Master    29570    process_m:Master:test    0.661(693296b)    2018-12-23 17:29:01    6              2           
+                  type      pid      title                    memory(m)         start                  run(s)    count
+                  Master    29570    process_m:Master:test    0.661(693296b)    2018-12-23 17:29:01    6         2           
                 
                 Worker
-                  type      pid      title                    memory(M)         start time             run time(s)    work times
-                  Worker    29571    process_m:Worker:test    0.661(692760b)    2018-12-23 17:29:01    6              1         
-                  Worker    29572    process_m:Worker:test    0.661(693608b)    2018-12-23 17:29:01    6              1         
+                  type      pid      title                    memory(m)         start                  run(s)    work
+                  Worker    29571    process_m:Worker:test    0.661(692760b)    2018-12-23 17:29:01    6         1         
+                  Worker    29572    process_m:Worker:test    0.661(693608b)    2018-12-23 17:29:01    6         1         
                 ```
                 字段说明：(Master表示主进程，Worker表示工作进程)
                 - `type`：进程类型说明(Master/Worker)
                 - `pid`：进程pid
                 - `title`：进程名称
                 - `memory`：内存消耗，单位：M，括号中的为字节数
-                - `start time`：进程开始时间
-                - `run time`：运行时长，单位：秒
-                - `worker count`：(Master进程独有属性)当前子进程个数
-                - `work times`：(Worker进程独有属性)当前进程执行任务回调的次数
+                - `start`：进程开始时间
+                - `run`：运行时长，单位：秒
+                - `count`：(Master进程独有属性)当前子进程个数
+                - `work`：(Worker进程独有属性)当前进程执行任务回调的次数
 			
 	- Process类
 	
