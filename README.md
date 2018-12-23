@@ -297,7 +297,7 @@ php多进程管理器
         - getCommandDescription()  
             返回命令描述
         - impactAction(Action $action)  
-            影响action的行为方式，建议在这个方法中使用`$action->setParam('key', 'value');`给action设置参数，然后在action类的handler类中通过`$this->getParam($key)`获取参数，进行操作。例如：
+            影响action的行为方式，建议在这个方法中使用`$action->setParam('key', 'value');`给action设置参数，然后在action类的handler方法中通过`$this->getParam($key)`获取参数，进行操作。例如：
             ```php
             /**
              * 影响action的行为
