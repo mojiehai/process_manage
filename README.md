@@ -115,8 +115,23 @@ php多进程管理器
         echo $e->getExceptionAsString();
     }
     ```
+4. 查看信息
+    ```php
+     
+    $config = [
+        // 进程基础配置
+        'baseTitle' => 'test',  // 进程基础名称
+    ];
     
-> 注意：baseTitle(进程基础名称)为进程的标识，start/stop/restart指定的名称必须相同。
+    try {
+        // 创建进程管理器
+        (new Manage($config))->showStatus();
+    } catch (ProcessException $e) {
+        echo $e->getExceptionAsString();
+    }
+    ```
+    
+> 注意：baseTitle(进程基础名称)为进程的标识，start/stop/restart/status指定的名称必须相同。
 
 ## 说明
 1. 参数说明
@@ -127,6 +142,7 @@ php多进程管理器
 			| --- | --- | --- | --- |
 			| PidRoot | 存放master进程pid文件根目录 | string | /tmp/pm/pid |
 			| TitlePrefix | 进程名称前缀 | string | process_m |
+			| StatusFileRoot | 存放进程状态文件根目录 | string | /tmp/pm/status |
 			
 		- 日志配置，通过`LogConfig::LoadConfig($configArray)`加载，配置项如下:
 			
@@ -169,33 +185,57 @@ php多进程管理器
 		| start()                                | 无                 | 无     | 启动任务                                                                                                                                                                                                                              |
 		| stop()                                 | 无                 | 无     | 停止任务                                                                                                                                                                                                                              |
 		| restart()                             | 无                 | 无     | 重启任务                                                                                                                                                                                                                              |
+		| status()                              | 无                 | array  | 进程状态数组                                                                                                                                                                                                         |
+		| showStatus()                          | 无                 | 无     | 格式化显示进程状态信息 (说明见 [1.2](#s1.2) )                                                                                                                                                                                                          |
 	
-		- 示例
+		- 示例或说明
 			- <a name='s1.0'>1.0</a>
-			```php
-			(new Manage($config))->setWorkInit(
-				// 工作内容初始化
-				function (Worker $process) {
-					// init
-					$link = mysqli_connect(...);
-					...
-					$redis = new Redis(...);
-					...
-					return ['mysql' => $link, 'redis' => $redis];
-				}
-			 )
-			```
+                ```php
+                (new Manage($config))->setWorkInit(
+                    // 工作内容初始化
+                    function (Worker $process) {
+                        // init
+                        $link = mysqli_connect(...);
+                        ...
+                        $redis = new Redis(...);
+                        ...
+                        return ['mysql' => $link, 'redis' => $redis];
+                    }
+                 )
+                ```
 			- <a name='s1.1'>1.1</a>
-			```php
-			(new Manage($config))->setWork(
-				// 执行的工作内容
-				function(Worker $process, $result = []) {
-					// work
-					$mysqlLink = $result['mysql'];
-					$redisLink = $result['redis'];
-				})
-			 )
-			```
+                ```php
+                (new Manage($config))->setWork(
+                    // 执行的工作内容
+                    function(Worker $process, $result = []) {
+                        // work
+                        $mysqlLink = $result['mysql'];
+                        $redisLink = $result['redis'];
+                    })
+                 )
+                ```
+			
+			- <a name='s1.2'>1.2</a>
+                ```
+                [root@localhost command]# php cmd.php status
+                Master
+                  type      pid      title                    memory(m)         start time             run time(s)    worker count
+                  Master    29570    process_m:Master:test    0.661(693296b)    2018-12-23 17:29:01    6              2           
+                
+                Worker
+                  type      pid      title                    memory(M)         start time             run time(s)    work times
+                  Worker    29571    process_m:Worker:test    0.661(692760b)    2018-12-23 17:29:01    6              1         
+                  Worker    29572    process_m:Worker:test    0.661(693608b)    2018-12-23 17:29:01    6              1         
+                ```
+                字段说明：(Master表示主进程，Worker表示工作进程)
+                - `type`：进程类型说明(Master/Worker)
+                - `pid`：进程pid
+                - `title`：进程名称
+                - `memory`：内存消耗，单位：M，括号中的为字节数
+                - `start time`：进程开始时间
+                - `run time`：运行时长，单位：秒
+                - `worker count`：(Master进程独有属性)当前子进程个数
+                - `work times`：(Worker进程独有属性)当前进程执行任务回调的次数
 			
 	- Process类
 	
@@ -315,11 +355,12 @@ php多进程管理器
 5. 运行
     ```
     [root@localhost command]# php cmd.php --help
-    Usage: <start|stop|restart> -[d]
+    Usage: <start|stop|restart|status> -[d]
     action: 
       start         start process
       stop          stop process
       restart       restart process
+      status        process status
     options: 
       -d            background running process
     other: 
