@@ -110,7 +110,7 @@ php多进程管理器
                     // work
                     \ProcessManage\Log\ProcessLog::Record('info', $process, 'work run ... ');
                 })
-            ->restart();
+            ->setBackground()->restart();
     } catch (ProcessException $e) {
         echo $e->getExceptionAsString();
     }

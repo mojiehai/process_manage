@@ -41,11 +41,8 @@ class ReStart extends Action
                     // work
                     $work->work($process, $result);
                 });
-        if ($this->getParam('runInBackground')) {
-            // 后台运行
-            $manage->setBackground();
-        }
-        $manage->restart();
+        // 后台运行
+        $manage->setBackground()->restart();
     }
 
     /**

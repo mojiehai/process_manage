@@ -61,8 +61,6 @@ class Master extends Process
         // 实例化pid文件存储类
         $this->pidStorage = new PidFileStorage($this->title);
 
-        // 实例化worker管理类
-        $this->workerManage = new WorkerManage($this->maxWorkerNum);
     }
 
     /**
@@ -102,6 +100,16 @@ class Master extends Process
             throw new ProcessException($e->getMessage(), $e->getCode(), $e->getPrevious());
         }
 
+        // 实例化worker管理类
+        $this->workerManage = new WorkerManage($this->maxWorkerNum);
+
+        // set config
+        $this->workerManage->setWorkerConfig([
+            'config' => $this->config,
+            'closureInit' => $this->closureInit,
+            'closure' => $this->closure
+        ]);
+
         return $this;
     }
 
@@ -124,70 +132,12 @@ class Master extends Process
             if ($this->checkWorkerInterval > 0) {
                 pcntl_alarm($this->checkWorkerInterval);
             }
-            // 循环开启子进程
-            while ($this->workerManage->isAdd()) {
-                $workerPid = pcntl_fork();  // fork出子进程
-                if ($workerPid > 0) {
 
-                    $this->masterBranch($workerPid);
-
-                } else if ($workerPid == 0) {
-
-                    $this->workerBranch();
-
-                } else {
-                    // fork失败
-                    throw new ProcessException('fork process error');
-                }
-            }
+            $this->workerManage->fork();
         }
     }
 
-    /**
-     * fork后，master的分支
-     * @param int $pid fork出来的子进程pid
-     */
-    protected function masterBranch(int $pid)
-    {
-        // 该分支为父进程，创建一个简易worker对象，加入到worker管理器中
-        $worker = new Worker([], $pid);
-        $this->workerManage->add($worker);
-        // 睡眠0.1s再启动下一个
-        usleep(100000);
-    }
 
-    /**
-     * fork后，worker的分支
-     */
-    protected function workerBranch()
-    {
-        // 该分支为子进程
-        try {
-            //设置默认文件权限
-            umask(022);
-            //将当前工作目录更改为根目录
-            chdir('/');
-            //关闭文件描述符
-            fclose(STDIN);
-            fclose(STDOUT);
-            fclose(STDERR);
-            //重定向输入输出
-            global $STDOUT, $STDERR;
-            $STDOUT = fopen('/dev/null', 'a');
-            $STDERR = fopen('/dev/null', 'a');
-
-            // 启动子进程任务
-            $worker = new Worker($this->config);
-            $worker->setWorkInit($this->closureInit)->setWork($this->closure)->run();
-        } catch (ProcessException $processException) {
-            // 已经记录过日志，可以不用记录
-        } catch (Exception $exception){
-            $msg = $exception->getExceptionAsString();
-            ProcessLog::error($msg);
-        } finally {
-            exit();
-        }
-    }
     ############################## fork操作 ###############################
 
 
@@ -201,15 +151,15 @@ class Master extends Process
         $isStop = false;
         // 检测5次 共5s
         for ($i = 1; $i <= 5; $i++) {
-            // 睡眠1s，等待子进程安全退出
-            sleep(1);
-            // 检测子进程状态
-            $this->workerManage->clean();
             // 如果子进程全部退出完成
             if ($this->workerManage->count() == 0) {
                 $isStop = true;
                 break;
             }
+            // 睡眠1s，等待子进程安全退出
+            sleep(1);
+            // 检测子进程状态
+            $this->workerManage->recyclingAllWorker();
         }
         if (!$isStop) {
             // 强制退出还未退出的子进程
@@ -265,11 +215,9 @@ class Master extends Process
     protected function wait()
     {
         if ($this->isRun()) {
-            $workerPid = pcntl_wait($status, WUNTRACED);
+            $workerPid = $this->workerManage->listenWorkers();
             if ($workerPid > 0) {
-
-                // 子进程退出，调用子进程管理器清理退出的进程
-                $this->workerManage->clean($workerPid);
+                // 子进程退出区间
 
                 // 如果检测子进程间隔>0，说明子进程需要长存，
                 // 因为当前已经退出一个子进程，所以则需要再次检测fork出子进程
@@ -292,7 +240,6 @@ class Master extends Process
 
             // 检测子进程时间间隔如果<0，则表示子进程不需要检测重启，则当子进程全部执行完毕后，退出主进程
             if ($this->checkWorkerInterval <= 0) {
-                $this->workerManage->clean();
                 if ($this->workerManage->count() == 0) {
                     return true;
                 }

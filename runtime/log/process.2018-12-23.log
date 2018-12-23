@@ -1,0 +1,35 @@
+[Info][ process_m:Master:test 119880 2018-12-23 12:34:55]: process start ok ! 
+[Info][ ---- process_m:Worker:test 119881 2018-12-23 12:34:55]: process start ok ! 
+[Info][ ---- process_m:Worker:test 119881 2018-12-23 12:34:55]: work init ... 
+[Info][ ---- process_m:Worker:test 119881 2018-12-23 12:34:55]: work run ... 
+[Info][ ---- process_m:Worker:test 119881 2018-12-23 12:34:55]: stopping ... 
+[Info][ ---- process_m:Worker:test 119881 2018-12-23 12:34:55]: stopped !!!
+[Info][ process_m:Master:test 119880 2018-12-23 12:34:55]: stopping ... 
+[Info][ process_m:Master:test 119880 2018-12-23 12:34:55]: stopped !!!
+[Info][ process_m:Master:test 119890 2018-12-23 12:35:29]: process start ok ! 
+[Info][ ---- process_m:Worker:test 119891 2018-12-23 12:35:29]: process start ok ! 
+[Info][ ---- process_m:Worker:test 119891 2018-12-23 12:35:29]: work init ... 2018-12-23 12:35:29
+[Info][ ---- process_m:Worker:test 119891 2018-12-23 12:35:29]: work run ..., times: 0 , start time:2018-12-23 12:35:29
+[Info][ ---- process_m:Worker:test 119891 2018-12-23 12:35:39]: work run ..., times: 1 , start time:2018-12-23 12:35:29
+[Info][ process_m:Master:test 119890 2018-12-23 12:35:40]: stopping ... 
+[Info][ ---- process_m:Worker:test 119891 2018-12-23 12:35:40]: stopping ... 
+[Info][ ---- process_m:Worker:test 119891 2018-12-23 12:35:40]: stopped !!!
+[Info][ process_m:Master:test 119890 2018-12-23 12:35:40]: stopped !!!
+[Info][ process_m:Master:test 119897 2018-12-23 12:35:45]: process start ok ! 
+[Info][ ---- process_m:Worker:test 119898 2018-12-23 12:35:45]: process start ok ! 
+[Info][ ---- process_m:Worker:test 119898 2018-12-23 12:35:45]: work init ... 2018-12-23 12:35:45
+[Info][ ---- process_m:Worker:test 119898 2018-12-23 12:35:45]: work run ..., times: 0 , start time:2018-12-23 12:35:45
+[Info][ ---- process_m:Worker:test 119898 2018-12-23 12:35:55]: work run ..., times: 1 , start time:2018-12-23 12:35:45
+[Info][ process_m:Master:test 119897 2018-12-23 12:35:59]: stopping ... 
+[Info][ ---- process_m:Worker:test 119898 2018-12-23 12:35:59]: stopping ... 
+[Info][ ---- process_m:Worker:test 119898 2018-12-23 12:35:59]: stopped !!!
+[Info][ process_m:Master:test 119897 2018-12-23 12:35:59]: stopped !!!
+[Info][ process_m:Master:test 119903 2018-12-23 12:36:00]: process start ok ! 
+[Info][ ---- process_m:Worker:test 119904 2018-12-23 12:36:00]: process start ok ! 
+[Info][ ---- process_m:Worker:test 119904 2018-12-23 12:36:00]: work init ... 2018-12-23 12:36:00
+[Info][ ---- process_m:Worker:test 119904 2018-12-23 12:36:00]: work run ..., times: 0 , start time:2018-12-23 12:36:00
+[Info][ ---- process_m:Worker:test 119904 2018-12-23 12:36:10]: work run ..., times: 1 , start time:2018-12-23 12:36:00
+[Info][ process_m:Master:test 119903 2018-12-23 12:36:18]: stopping ... 
+[Info][ ---- process_m:Worker:test 119904 2018-12-23 12:36:18]: stopping ... 
+[Info][ ---- process_m:Worker:test 119904 2018-12-23 12:36:18]: stopped !!!
+[Info][ process_m:Master:test 119903 2018-12-23 12:36:18]: stopped !!!

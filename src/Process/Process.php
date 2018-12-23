@@ -157,7 +157,6 @@ abstract class Process
         $this->status = self::STATUS_INIT;
         // 设置进程名称
         $this->setProcessTitle();
-        ProcessLog::info('init ok !');
         return $this;
     }
 
@@ -219,7 +218,6 @@ abstract class Process
      */
     public function setStop()
     {
-        ProcessLog::info('stopping ... ');
         if (posix_kill($this->pid, SIGTERM)) {
             return true;
         } else {
@@ -274,7 +272,7 @@ abstract class Process
             $this->setSignal();
             // 设置运行状态
             $this->status = self::STATUS_RUN;
-            ProcessLog::info('running ... ');
+            ProcessLog::info('process start ok ! ');
             // 工作开始
             $this->runHandler();
         } else {
@@ -299,8 +297,11 @@ abstract class Process
      */
     protected function stopHandler()
     {
-        // 设置当前进程为需要停止状态
-        $this->status = self::STATUS_SET_STOP;
+        if ($this->status != self::STATUS_SET_STOP) {
+            ProcessLog::info('stopping ... ');
+            // 设置当前进程为需要停止状态
+            $this->status = self::STATUS_SET_STOP;
+        }
     }
 
     /**

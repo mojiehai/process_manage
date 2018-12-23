@@ -5,6 +5,7 @@ namespace ProcessManage\Process\MasterUtils;
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Process\Worker;
 use ProcessManage\Log\ProcessLog;
+use ProcessManage\Exception\Exception;
 
 /**
  * worker进程管理类
@@ -26,6 +27,11 @@ class WorkerManage
      */
     protected $maxWorkerNum = 0;
 
+    /**
+     * 工作进程配置
+     * @var array
+     */
+    protected $workerConfig = [];
 
     /**
      * WorkerManage constructor.
@@ -35,6 +41,92 @@ class WorkerManage
     {
         $this->maxWorkerNum = $maxWorkerNum;
     }
+
+
+    #################################### fork ########################################
+
+    /**
+     * set config
+     * @param array $workerConfig
+     * @return $this
+     */
+    public function setWorkerConfig(array $workerConfig)
+    {
+        $this->workerConfig = $workerConfig;
+        return $this;
+    }
+
+    /**
+     * fork worker
+     * @throws ProcessException
+     */
+    public function fork()
+    {
+        $this->recyclingAllWorker();
+        // 循环开启子进程
+        while ($this->isAdd()) {
+            $workerPid = pcntl_fork();  // fork出子进程
+            if ($workerPid > 0) {
+
+                $this->masterBranch($workerPid);
+
+            } else if ($workerPid == 0) {
+
+                $this->workerBranch();
+
+            } else {
+                // fork失败
+                throw new ProcessException('fork process error');
+            }
+        }
+    }
+
+    /**
+     * fork后，master的分支
+     * @param int $pid fork出来的子进程pid
+     */
+    protected function masterBranch(int $pid)
+    {
+        // 该分支为父进程，创建一个简易worker对象，加入到worker管理器中
+        $worker = new Worker($this->workerConfig['config'], $pid);
+        $this->add($worker);
+        // 睡眠0.1s再启动下一个
+        usleep(100000);
+    }
+
+    /**
+     * fork后，worker的分支
+     */
+    protected function workerBranch()
+    {
+        // 该分支为子进程
+        try {
+            //设置默认文件权限
+            umask(022);
+            //将当前工作目录更改为根目录
+            chdir('/');
+            //关闭文件描述符
+            fclose(STDIN);
+            fclose(STDOUT);
+            fclose(STDERR);
+            //重定向输入输出
+            global $STDOUT, $STDERR;
+            $STDOUT = fopen('/dev/null', 'a');
+            $STDERR = fopen('/dev/null', 'a');
+
+            // 启动子进程任务
+            $worker = new Worker($this->workerConfig['config']);
+            $worker->setWorkInit($this->workerConfig['closureInit'])->setWork($this->workerConfig['closure'])->run();
+        } catch (ProcessException $processException) {
+            // 已经记录过日志，可以不用记录
+        } catch (Exception $exception){
+            $msg = $exception->getExceptionAsString();
+            ProcessLog::error($msg);
+        } finally {
+            exit();
+        }
+    }
+    #################################### fork ########################################
 
     /**
      * 返回当前worker进程数量
@@ -49,7 +141,7 @@ class WorkerManage
      * 检查worker进程，清理不存在的进程
      * @param int $pid 大于0时，检测该pid进程; 否则，检测所有worker进程
      */
-    public function clean(int $pid = 0)
+    protected function clean(int $pid = 0)
     {
         if ($pid > 0) {
             $worker = $this->get($pid);
@@ -72,8 +164,6 @@ class WorkerManage
      */
     public function isAdd()
     {
-        $this->clean();
-        // 工作进程数量 小于 最大工作进程数
         if ($this->count() < $this->maxWorkerNum) {
             return true;
         } else {
@@ -114,6 +204,49 @@ class WorkerManage
         if ($this->get($pid)) unset($this->workers[$pid]);
     }
 
+    /**
+     * 快速检测回收一下所有子进程（不阻塞）
+     */
+    public function recyclingAllWorker()
+    {
+        foreach ($this->workers as $k => $worker) {
+            $this->recyclingWorker($worker->pid);
+        }
+    }
+
+    /**
+     * 回收子进程资源
+     * @param int $pid  >0时为回收指定子进程退出后的资源，-1时为回收任意子进程退出后的资源 ，默认-1
+     * @param bool $isBlocking 是否阻塞, 设置为true时，子进程未退出时阻塞
+     * @return int
+     *  -1 没有子进程或者发生错误
+     *  0  子进程还未退出
+     *  >0 回收的子进程pid
+     */
+    protected function recyclingWorker($pid = -1, $isBlocking = false)
+    {
+        if ($isBlocking) {
+            // 阻塞
+            $option = WUNTRACED;
+        } else {
+            // 非阻塞
+            $option = WNOHANG;
+        }
+        $pid = pcntl_waitpid($pid, $status, $option);
+        if ($pid > 0) {
+            // 子进程退出，调用子进程管理器清理退出的进程
+            $this->clean($pid);
+        }
+        return $pid;
+    }
+
+    /**
+     * 监听子进程退出(阻塞)
+     */
+    public function listenWorkers()
+    {
+        return $this->recyclingWorker(-1, true);
+    }
 
     /**
      * 停止子进程(给子进程发送停止信号SIGTERM)
@@ -123,7 +256,6 @@ class WorkerManage
     public function stopWorker($pid = 0)
     {
         try {
-            $this->clean();
             if ($pid == 0) {
                 $isStop = true;
                 foreach ($this->workers as $k => $v) {
@@ -136,7 +268,15 @@ class WorkerManage
             } else {
                 $worker = $this->get($pid);
                 if ($worker) {
-                    return $worker->setStop();
+                    if ($worker->setStop()) {
+                        // 发送信号后，等待0.01s再回收资源
+                        usleep(10000);
+                        // 不阻塞 回收子进程资源
+                        $this->recyclingWorker($worker->pid);
+                        return true;
+                    } else {
+                        return false;
+                    }
                 } else {
                     return true;
                 }
@@ -155,7 +295,6 @@ class WorkerManage
     public function forceStopWorker($pid = 0)
     {
         try {
-            $this->clean();
             if ($pid == 0) {
                 $isStop = true;
                 foreach ($this->workers as $k => $v) {
@@ -168,7 +307,13 @@ class WorkerManage
             } else {
                 $worker = $this->get($pid);
                 if ($worker) {
-                    return $worker->forceStop();
+                    if ($worker->forceStop()) {
+                        // 阻塞回收子进程资源
+                        $this->recyclingWorker($worker->pid, true);
+                        return true;
+                    } else {
+                        return false;
+                    }
                 } else {
                     return true;
                 }
