@@ -5,6 +5,7 @@ namespace ProcessManage\Process;
 
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Exception\Exception;
+use ProcessManage\Process\ManageUtils\SystemRegister;
 
 class Manage
 {
@@ -34,6 +35,8 @@ class Manage
     public function __construct(array $config = [])
     {
         $this->config = $config;
+        // 注册加载函数
+        SystemRegister::registerAllHandler();
         //设置默认文件权限
         umask(022);
     }

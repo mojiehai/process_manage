@@ -3,7 +3,7 @@
 namespace ProcessManage\Process\MasterUtils;
 
 use ProcessManage\Config\ProcessConfig;
-use ProcessManage\Exception\Exception;
+use ProcessManage\Exception\ProcessException;
 
 /**
  * 进程 pid 文件存储类
@@ -53,22 +53,22 @@ class PidFileStorage
 
     /**
      * 初始化pid文件
-     * @throws Exception
+     * @throws ProcessException
      */
     protected function initStorage()
     {
         if (empty($this->pidFileDir) || empty($this->pidFileName)) {
-            throw new Exception("pid file configure error");
+            throw new ProcessException("pid file configure error");
         }
         if (!is_dir($this->pidFileDir)) {
             if (!mkdir($this->pidFileDir, 0644, true)) {
-                throw new Exception('create master pid directory failure');
+                throw new ProcessException('create master pid directory failure');
             }
             chmod($this->pidFileDir, 0644);
         }
         if (!file_exists($this->pidFilePath)) {
             if (!touch($this->pidFilePath)) {
-                throw new Exception('create master pid file failure');
+                throw new ProcessException('create master pid file failure');
             }
         }
     }
@@ -77,7 +77,7 @@ class PidFileStorage
      * 保存pid
      * @param int $pid pid
      * @return bool
-     * @throws Exception
+     * @throws ProcessException
      */
     public function save(int $pid)
     {
@@ -97,7 +97,7 @@ class PidFileStorage
     /**
      * 从文件中获取pid
      * @return int pid
-     * @throws Exception
+     * @throws ProcessException
      */
     public function read()
     {
