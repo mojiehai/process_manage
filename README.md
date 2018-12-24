@@ -218,53 +218,52 @@ php多进程管理器
         | getAllStatus() | 无 | array |  获取所有进程状态信息 |
 
 3. 示例或说明
-	- <a name='s1.0'>1.0</a>
-                ```php
-                (new Manage($config))->setWorkInit(
-                    // 工作内容初始化
-                    function (Worker $process) {
-                        // init
-                        $link = mysqli_connect(...);
-                        ...
-                        $redis = new Redis(...);
-                        ...
-                        return ['mysql' => $link, 'redis' => $redis];
-                    }
-                 )
-                ```
-	- <a name='s1.1'>1.1</a>
-                ```php
-                (new Manage($config))->setWork(
-                    // 执行的工作内容
-                    function(Worker $process, $result = []) {
-                        // work
-                        $mysqlLink = $result['mysql'];
-                        $redisLink = $result['redis'];
-                    })
-                 )
-                ```
-			
-	- <a name='s1.2'>1.2</a>
-                ```
-                [root@localhost command]# php cmd.php status
-                Master
-                  type      pid      title                    memory(m)         start                  run(s)    count
-                  Master    29570    process_m:Master:test    0.661(693296b)    2018-12-23 17:29:01    6         2           
-                
-                Worker
-                  type      pid      title                    memory(m)         start                  run(s)    work
-                  Worker    29571    process_m:Worker:test    0.661(692760b)    2018-12-23 17:29:01    6         1         
-                  Worker    29572    process_m:Worker:test    0.661(693608b)    2018-12-23 17:29:01    6         1         
-                ```
-                字段说明：(Master表示主进程，Worker表示工作进程)
-                - `type`：进程类型说明(Master/Worker)
-                - `pid`：进程pid
-                - `title`：进程名称
-                - `memory`：内存消耗，单位：M，括号中的为字节数
-                - `start`：进程开始时间
-                - `run`：运行时长，单位：秒
-                - `count`：(Master进程独有属性)当前子进程个数
-                - `work`：(Worker进程独有属性)当前进程执行任务回调的次数
+	- <a name='s1.0'>1.0</a>  
+		```php
+		(new Manage($config))->setWorkInit(
+		    // 工作内容初始化
+		    function (Worker $process) {
+			// init
+			$link = mysqli_connect(...);
+			...
+			$redis = new Redis(...);
+			...
+			return ['mysql' => $link, 'redis' => $redis];
+		    }
+		 )
+		```
+	- <a name='s1.1'>1.1</a>  
+		```php
+		(new Manage($config))->setWork(
+		    // 执行的工作内容
+		    function(Worker $process, $result = []) {
+			// work
+			$mysqlLink = $result['mysql'];
+			$redisLink = $result['redis'];
+		    })
+		 )
+		```
+	- <a name='s1.2'>1.2</a>  
+		```
+		[root@localhost command]# php cmd.php status
+		Master
+		  type      pid      title                    memory(m)         start                  run(s)    count
+		  Master    29570    process_m:Master:test    0.661(693296b)    2018-12-23 17:29:01    6         2           
+
+		Worker
+		  type      pid      title                    memory(m)         start                  run(s)    work
+		  Worker    29571    process_m:Worker:test    0.661(692760b)    2018-12-23 17:29:01    6         1         
+		  Worker    29572    process_m:Worker:test    0.661(693608b)    2018-12-23 17:29:01    6         1         
+		```
+		字段说明：(Master表示主进程，Worker表示工作进程)
+		- `type`：进程类型说明(Master/Worker)
+		- `pid`：进程pid
+		- `title`：进程名称
+		- `memory`：内存消耗，单位：M，括号中的为字节数
+		- `start`：进程开始时间
+		- `run`：运行时长，单位：秒
+		- `count`：(Master进程独有属性)当前子进程个数
+		- `work`：(Worker进程独有属性)当前进程执行任务回调的次数
 
 ## 命令管理
 提供了一套命令管理的方案，通过实现部分接口即可接入
