@@ -19,7 +19,8 @@ php多进程管理器
 - ext-mbstring: *
       
 ## 安装
-> composer require mojiehai/process_manage
+> linux：`composer require mojiehai/process_manage`
+> windows：`composer require mojiehai/process_manage --ignore-platform-reqs`
 
 ## 使用
 1. 启动
