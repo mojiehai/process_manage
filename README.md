@@ -21,7 +21,7 @@ php多进程管理器
 ## 安装
 > linux：`composer require mojiehai/process_manage`  
 
-> windows：`composer require mojiehai/process_manage --ignore-platform-reqs`
+> windows：`composer require mojiehai/process_manage --ignore-platform-reqs`  (windows下仅安装，不支持使用)
 
 ## 使用
 1. 启动
