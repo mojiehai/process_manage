@@ -1,8 +1,14 @@
 # process_manage
 php多进程管理器
 
+<br />
+<br />
+
 ## 业务场景
 在实际业务场景中，我们可能需要定时执行或者近乎实时到业务逻辑，简单的可以使用unix自带的crontab实现。但是对于一些实时性要求比较高的业务就不适用了，所以我们就需要一个常驻内存的任务管理工具，为了保证实时性，一方面我们让它一直执行任务(适当的睡眠，保证cpu不被100%占用)，另一方面我们实现多进程保证并发的执行任务。
+
+<br />
+<br />
 
 ## 简述
 基于php-cli模式实现master(父进程)-worker(子进程)的多进程管理器。
@@ -11,17 +17,26 @@ php多进程管理器
     - master通过信号(signal)控制多个worker的生命周期(master会阻塞的等待信号或者子进程退出)
     - worker会在生命周期中执行预定的任务
       
+<br />
+<br />
+      
 ## 依赖
 - php: >=7.0
 - ext-pcntl: *
 - ext-posix: *
 - ext-json: *
 - ext-mbstring: *
-      
+ 
+<br />
+<br />
+ 
 ## 安装
 > linux：`composer require mojiehai/process_manage`  
 
 > windows：`composer require mojiehai/process_manage --ignore-platform-reqs`  (windows下仅安装，不支持使用)
+
+<br />
+<br />
 
 ## 使用
 1. 启动
@@ -63,6 +78,9 @@ php多进程管理器
         echo $e->getExceptionAsString();
     }
     ```
+    
+<br />
+    
 2. 停止
     ```php
     
@@ -78,6 +96,9 @@ php多进程管理器
         echo $e->getExceptionAsString();
     }
     ```
+    
+<br />
+    
 3. 平滑重启
     ```php
     
@@ -117,6 +138,9 @@ php多进程管理器
         echo $e->getExceptionAsString();
     }
     ```
+
+<br />
+
 4. 查看信息
     ```php
      
@@ -134,6 +158,9 @@ php多进程管理器
     ```
     
 > 注意：baseTitle(进程基础名称)为进程的标识，start/stop/restart/status指定的名称必须相同。
+
+<br />
+<br />
 
 ## 说明
 1. 参数说明
@@ -176,6 +203,8 @@ php多进程管理器
 		| executeUSleep       | worker：工作进程每次执行后睡眠时间 单位：微秒数  0为不睡眠                                                                   | int    | 否       | 200000               |
 		| limitSeconds        | worker：工作进程最大执行时长 单位：秒 0为不限制(执行完指定次数后退出子进程，等待master进程重启子进程)                        | int    | 否       | 0                    |
 
+<br />
+
 2. 方法说明
 	- Manage类
 		
@@ -216,6 +245,8 @@ php多进程管理器
 	    | 方法名 | 参数说明 | 返回值 | 描述 | 
         | ------- | -------- | ------ | ---- |
         | getAllStatus() | 无 | array |  获取所有进程状态信息 |
+
+<br />
 
 3. 示例或说明
 	- <a name='s1.0'>1.0</a>  
@@ -265,6 +296,9 @@ php多进程管理器
 		- `count`：(Master进程独有属性)当前子进程个数
 		- `work`：(Worker进程独有属性)当前进程执行任务回调的次数
 
+<br />
+<br />
+
 ## 命令管理
 提供了一套命令管理的方案，通过实现部分接口即可接入
 
@@ -276,6 +310,8 @@ php多进程管理器
         一条命令由一个明确的行为参数确定行为动作，若干个附加参数附带其他信息配置等。  
         例如：`start -d` 行为参数为start，表示启动，附加参数`d`，表示后台运行  
     
+<br />
+
 2. 命令模板
     - 格式:
         - `<>`包裹着为必填参数(行为参数)，参数可选值用 | 分隔
@@ -286,6 +322,8 @@ php多进程管理器
         - 附加参数可以有多个，在行为参数后面
         - 输入命令时，每个附加参数可以连上`=`号传递想输入的参数
     - 例如：`<start|stop|restart> -[d] -[a|s]`
+    
+<br />
     
 3. 构建命令
     1. 创建行为动作类继承`ProcessManage\Command\Action`类，并实现下列方法：(一个行为动作一个类)
@@ -347,6 +385,8 @@ php多进程管理器
                 return '<start|stop|restart> -[d]';
             }
             ```
+
+<br />
       
 4. 使用
     ```php
@@ -356,6 +396,8 @@ php多进程管理器
     $command = new Command(new ManageProcessTemplate());
     $command->run();
     ```
+
+<br />
 
 5. 运行
     ```
