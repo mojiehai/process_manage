@@ -35,8 +35,6 @@ class Manage
     public function __construct(array $config = [])
     {
         $this->config = $config;
-        // 注册加载函数
-        SystemRegister::registerAllHandler();
         //设置默认文件权限
         umask(022);
     }
@@ -110,6 +108,8 @@ class Manage
     public function start()
     {
         $master = new Master($this->config);
+        // 注册加载函数
+        SystemRegister::registerAllHandler();
         $master->setWorkInit($this->closureInit)->setWork($this->closure)->run();
     }
 

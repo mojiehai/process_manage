@@ -2,8 +2,7 @@
 
 define('PROCESS_ROOT', dirname(__DIR__));
 
-function __autoload($class)
-{
+spl_autoload_register(function($class){
     $classArr = explode('\\', $class);
     $file = PROCESS_ROOT;
     foreach ($classArr as $v) {
@@ -19,4 +18,4 @@ function __autoload($class)
     if (file_exists($file)) {
         require $file;
     }
-}
+});
