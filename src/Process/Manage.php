@@ -5,6 +5,7 @@ namespace ProcessManage\Process;
 
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Exception\Exception;
+use ProcessManage\Helper\ResourceManage;
 use ProcessManage\Process\ManageUtils\SystemRegister;
 
 class Manage
@@ -35,8 +36,6 @@ class Manage
     public function __construct(array $config = [])
     {
         $this->config = $config;
-        //设置默认文件权限
-        umask(022);
     }
 
     /**
@@ -59,16 +58,9 @@ class Manage
         if ($sid < 0) {
             exit;
         }
-        //将当前工作目录更改为根目录
-        chdir('/');
-        //关闭文件描述符
-        fclose(STDIN);
-        fclose(STDOUT);
-        fclose(STDERR);
-        //重定向输入输出
-        global $STDOUT, $STDERR;
-        $STDOUT = fopen('/dev/null', 'a');
-        $STDERR = fopen('/dev/null', 'a');
+
+        // 重设资源描述符
+        ResourceManage::resetFileDescriptor();
 
         return $this;
     }

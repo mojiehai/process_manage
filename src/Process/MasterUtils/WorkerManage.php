@@ -3,6 +3,7 @@
 namespace ProcessManage\Process\MasterUtils;
 
 use ProcessManage\Exception\ProcessException;
+use ProcessManage\Helper\ResourceManage;
 use ProcessManage\Process\Worker;
 use ProcessManage\Log\ProcessLog;
 use ProcessManage\Exception\Exception;
@@ -101,18 +102,8 @@ class WorkerManage
     {
         // 该分支为子进程
         try {
-            //设置默认文件权限
-            umask(022);
-            //将当前工作目录更改为根目录
-            chdir('/');
-            //关闭文件描述符
-            fclose(STDIN);
-            fclose(STDOUT);
-            fclose(STDERR);
-            //重定向输入输出
-            global $STDOUT, $STDERR;
-            $STDOUT = fopen('/dev/null', 'a');
-            $STDERR = fopen('/dev/null', 'a');
+            //重设资源描述符
+            ResourceManage::resetFileDescriptor();
 
             // 启动子进程任务
             $worker = new Worker($this->workerConfig['config']);
