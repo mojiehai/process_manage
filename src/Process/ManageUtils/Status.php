@@ -234,6 +234,8 @@ class Status
                         if ($template[$type][$field] != $field) {
                             unset($result[$type][$pid][$field]);
                         }
+                    } else {
+                        unset($result[$type][$pid][$field]);
                     }
                 }
             }
