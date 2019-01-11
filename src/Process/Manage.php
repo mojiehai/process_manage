@@ -30,12 +30,19 @@ class Manage
     protected $closure = null;
 
     /**
+     * master 进程
+     * @var Master
+     */
+    protected $master = null;
+
+    /**
      * @param array $config
      * Manage constructor.
      */
     public function __construct(array $config = [])
     {
         $this->config = $config;
+        $this->master = new Master($this->config);
     }
 
     /**
@@ -91,6 +98,17 @@ class Manage
         return $this;
     }
 
+    ################################## get ####################################
+
+    /**
+     * 获取master进程
+     * @return Master
+     */
+    public function getMaster()
+    {
+        return $this->master;
+    }
+
     ################################## command action ####################################
     /**
      * start命令动作
@@ -99,10 +117,9 @@ class Manage
      */
     public function start()
     {
-        $master = new Master($this->config);
         // 注册加载函数
         SystemRegister::registerAllHandler();
-        $master->setWorkInit($this->closureInit)->setWork($this->closure)->run();
+        $this->master->setWorkInit($this->closureInit)->setWork($this->closure)->run();
     }
 
     /**
@@ -112,9 +129,8 @@ class Manage
      */
     public function stop()
     {
-        $master = new Master($this->config);
-        if ($master->isAlive()) {
-            if ($master->setStop()) {
+        if ($this->master->isAlive()) {
+            if ($this->master->setStop()) {
                 return true;
             } else {
                 throw new Exception('stop failure');
@@ -131,9 +147,8 @@ class Manage
     public function restart()
     {
         $this->stop();
-        $master = new Master($this->config);
         $i = 0;
-        while($master->isAlive()) {
+        while($this->master->isAlive()) {
             if ($i > 10) {
                 throw new Exception('failure to stop the master process!');
             }
@@ -162,13 +177,12 @@ class Manage
      */
     public function status()
     {
-        $master = new Master($this->config);
-        if ($master->isAlive()) {
+        if ($this->master->isAlive()) {
             // 发送信号让进程记录status
-            $master->saveStatus();
+            $this->master->saveStatus();
             // 睡眠1秒，等待进程记录
             sleep(1);
-            return $master->getAllStatus();
+            return $this->master->getAllStatus();
         } else {
             throw new Exception('process is not exists!');
         }
