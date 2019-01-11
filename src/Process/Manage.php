@@ -8,6 +8,31 @@ use ProcessManage\Exception\Exception;
 use ProcessManage\Helper\ResourceManage;
 use ProcessManage\Process\ManageUtils\SystemRegister;
 
+/**
+ * code is far away from bug with the animal protecting
+ *   ┏┓   ┏┓
+ * ┏━┛┻━━━┛┻━┓
+ * ┃　 　 　  ┃
+ * ┃　　　━   ┃
+ * ┃　┳┛　┗┳　┃
+ * ┃　 　 　  ┃
+ * ┃ 　　┻ 　 ┃
+ * ┃　 　 　  ┃
+ * ┗━┓　　　┏━┛
+ *   ┃　　　┃  神兽保佑
+ *   ┃　　　┃  代码无BUG！
+ *   ┃　　　┗━━━┓
+ *   ┃　　　    ┣┓
+ *   ┃　　　　   ┏┛
+ *   ┗┓┓┏━━━┳┓┏━┛
+ *    ┃┫┫   ┃┫┫
+ *    ┗┻┛   ┗┻┛
+ *
+ * ---------------------------------
+ *
+ * Class Manage
+ * @package ProcessManage\Process
+ */
 class Manage
 {
 
