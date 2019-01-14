@@ -217,7 +217,7 @@ php多进程管理器
 		| stop()                                 | 无                 | 无     | 停止任务                                                                                                                                                                                                                              |
 		| restart()                             | 无                 | 无     | 重启任务                                                                                                                                                                                                                              |
 		| status()                              | 无                 | array  | 进程状态数组                                                                                                                                                                                                         |
-		| showStatus()                          | array 状态数组(status()的返回值)  | 无     | 格式化显示进程状态信息 (说明见 [1.2](#s1.2) )                                                                                                                                                                                                          |
+		| showStatus()                          | array $status: 状态数组(status()的返回值)  | 无     | 格式化显示进程状态信息 (说明见 [1.2](#s1.2) )                                                                                                                                                                                                          |
 	
 	- ManageMultiple类(多任务多进程管理器)
     		
