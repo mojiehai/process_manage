@@ -151,7 +151,10 @@ class Status
             fclose($link);
             return $this->format($result);
         } else {
-            return [];
+            return [
+                'Master' => [],
+                'Worker' => []
+            ];
         }
     }
 

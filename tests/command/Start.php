@@ -3,9 +3,8 @@
 namespace ProcessManage\Command\Action;
 
 use ProcessManage\Command\Options\Work;
-use ProcessManage\Exception\ProcessException;
+use ProcessManage\Exception\Exception;
 use ProcessManage\Process\Manage;
-use ProcessManage\Process\Process;
 use ProcessManage\Process\Worker;
 
 /**
@@ -19,7 +18,7 @@ class Start extends Action
     /**
      * 执行该命令的动作
      * @return void
-     * @throws ProcessException
+     * @throws Exception
      */
     public function handler()
     {
@@ -30,7 +29,7 @@ class Start extends Action
         $manage = (new Manage($work->config))
             ->setWorkInit(
             // 工作内容初始化
-                function (Process $process) use ($work) {
+                function (Worker $process) use ($work) {
                     // init
                     return $work->init($process);
                 }

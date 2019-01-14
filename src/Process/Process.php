@@ -54,7 +54,7 @@ abstract class Process
      * 进程基础名称(用来区分多个多进程任务)
      * @var string
      */
-    protected $baseTitle = 'process';
+    public $baseTitle = 'process';
 
     /**
      * 进程实际工作内容的初始化
@@ -213,10 +213,11 @@ abstract class Process
     ###################### 进程状态 #######################
     /**
      * 发送保存信息的信号
+     * @return bool
      */
     public function saveStatus()
     {
-        posix_kill($this->pid, SIGUSR1);
+        return posix_kill($this->pid, SIGUSR1);
     }
 
     /**

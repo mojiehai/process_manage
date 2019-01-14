@@ -23,7 +23,7 @@ class Status extends Action
     {
         $work = new Work();
         // 创建进程管理器
-        (new Manage($work->config))->showStatus();
+        Manage::showStatus((new Manage($work->config))->status());
     }
 
     /**

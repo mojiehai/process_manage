@@ -30,6 +30,7 @@ use ProcessManage\Process\ManageUtils\SystemRegister;
  *
  * ---------------------------------
  *
+ * 单任务进程管理器
  * Class Manage
  * @package ProcessManage\Process
  */
@@ -138,13 +139,17 @@ class Manage
     /**
      * start命令动作
      * @return void
-     * @throws ProcessException
+     * @throws Exception
      */
     public function start()
     {
-        // 注册加载函数
-        SystemRegister::registerAllHandler();
-        $this->master->setWorkInit($this->closureInit)->setWork($this->closure)->run();
+        if (!$this->master->isAlive()) {
+            // 注册加载函数
+            SystemRegister::registerAllHandler();
+            $this->master->setWorkInit($this->closureInit)->setWork($this->closure)->run();
+        } else {
+            throw new Exception('process('.$this->master->title.') is exists!');
+        }
     }
 
     /**
@@ -158,10 +163,10 @@ class Manage
             if ($this->master->setStop()) {
                 return true;
             } else {
-                throw new Exception('stop failure');
+                throw new Exception('stop "'.$this->master->title.'" failure');
             }
         } else {
-            throw new Exception('process is not exists!');
+            throw new Exception('process('.$this->master->title.') is not exists!', 100);
         }
     }
 
@@ -175,7 +180,7 @@ class Manage
         $i = 0;
         while($this->master->isAlive()) {
             if ($i > 10) {
-                throw new Exception('failure to stop the master process!');
+                throw new Exception('failure to stop the master process('.$this->master->title.')!');
             }
             sleep(1);
             $i ++;
@@ -185,7 +190,22 @@ class Manage
 
 
     /**
-     * return status信息
+     * 保存进程状态到缓存文件中（该方法保存后，需要等待一会，不能立即获取状态）
+     * @return bool
+     * @throws Exception
+     */
+    public function saveProcessStatusToCache()
+    {
+        if ($this->master->isAlive()) {
+            // 发送信号让进程记录status
+            return $this->master->saveStatus();
+        } else {
+            throw new Exception('process('.$this->master->title.') is not exists!', 100);
+        }
+    }
+
+    /**
+     * 在缓存文件中获取进程的状态
      * @return array 信息数组
      * [
      *  'Master' => [
@@ -200,26 +220,35 @@ class Manage
      * ]
      * @throws Exception
      */
-    public function status()
+    public function getProcessStatusByCache()
     {
         if ($this->master->isAlive()) {
-            // 发送信号让进程记录status
-            $this->master->saveStatus();
-            // 睡眠1秒，等待进程记录
-            sleep(1);
+            // 获取进程的状态
             return $this->master->getAllStatus();
         } else {
-            throw new Exception('process is not exists!');
+            throw new Exception('process('.$this->master->title.') is not exists!', 100);
         }
     }
 
     /**
-     * 显示status信息
+     * return status信息
+     * @return array
      * @throws Exception
      */
-    public function showStatus()
+    public function status()
     {
-        $status = $this->status();
+        $this->saveProcessStatusToCache();
+        // 睡眠1秒，等待进程记录
+        sleep(1);
+        return $this->getProcessStatusByCache();
+    }
+
+    /**
+     * 显示status信息
+     * @param array $status status信息数组
+     */
+    public static function showStatus(array $status)
+    {
         $str = '';
         foreach ($status as $processType => $infoArr) {
             $str .= $processType.PHP_EOL;
@@ -241,10 +270,10 @@ class Manage
                     foreach ($row as $k => $v) {
                         $tmpRow[$k] = $k;
                     }
-                    $keys = $this->fullStringByArray($tmpRow, $lengthArr);
+                    $keys = static::fullStringByArray($tmpRow, $lengthArr);
                     $str .= '  ' . implode('    ', $keys).PHP_EOL;
                 }
-                $values = $this->fullStringByArray($row, $lengthArr);
+                $values = static::fullStringByArray($row, $lengthArr);
                 $str .= '  '. implode('    ', $values).PHP_EOL;
 
                 $i ++;
@@ -262,7 +291,7 @@ class Manage
      * @param array $lengthArr
      * @return array
      */
-    protected function fullStringByArray(array $field, array $lengthArr)
+    protected static function fullStringByArray(array $field, array $lengthArr)
     {
         foreach ($field as $k => $v) {
             if (isset($lengthArr[$k])) {

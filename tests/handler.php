@@ -12,11 +12,11 @@ $config = [
     'baseTitle' => 'test',  // 进程基础名称
 
     // master 进程配置
-    'checkWorkerInterval' => 0,    // n秒检测一次进程(<=0则为不检测)
+    'checkWorkerInterval' => 600,    // n秒检测一次进程(<=0则为不检测)
     'maxWorkerNum' => 1,    //1个进程
 
     // worker 进程配置
-    'executeTimes' => 1,    // 任务的最大执行次数(0为没有最大执行次数，一直执行)
+    'executeTimes' => 0,    // 任务的最大执行次数(0为没有最大执行次数，一直执行)
     'executeUSleep' => 10000000,  // 每次执行任务睡眠时间(微秒) 1s = 1 000 000 us (1s)
     'limitSeconds' => 10800,    // 工作进程最大执行时长(秒)(跑3个小时重启)
 ];
