@@ -5,6 +5,7 @@ require __DIR__.'/Work.php';
 require __DIR__.'/Start.php';
 require __DIR__.'/ReStart.php';
 require __DIR__.'/Stop.php';
+require __DIR__.'/WakeUp.php';
 require __DIR__.'/Status.php';
 require __DIR__.'/D.php';
 require __DIR__.'/ManageProcessTemplate.php';
