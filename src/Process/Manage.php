@@ -271,7 +271,7 @@ class Manage
      * 显示或输出status信息
      * @param array $status status信息数组
      * @param bool $isReturn 是否返回 true：返回字符串  false：直接输出字符串
-     * @return void|string
+     * @return string|null
      */
     public static function showStatus(array $status, bool $isReturn = false)
     {

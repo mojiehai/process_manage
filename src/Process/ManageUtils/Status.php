@@ -159,6 +159,8 @@ class Status
             return $this->format($result);
         } else {
             return [
+                'MasterConfig' => [],
+                'WorkerConfig' => [],
                 'Master' => [],
                 'Worker' => []
             ];
@@ -217,7 +219,10 @@ class Status
         ];
         $result = [];
         $pidArr = []; // 子进程列表
-        $config = []; // 配置列表
+        $config = [
+            'MasterConfig' => [],
+            'WorkerConfig' => [],
+        ]; // 配置列表
         foreach ($read as $k => $v) {
             $tmpValue = $v;
             if ($tmpValue->type == 'Master') {
