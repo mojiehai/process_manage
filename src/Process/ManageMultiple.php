@@ -134,6 +134,25 @@ class ManageMultiple
     }
 
     /**
+     * wakeup命令动作
+     * @return void
+     * @throws Exception
+     */
+    public function wakeup()
+    {
+        foreach ($this->manage as $manage) {
+            try {
+                $manage->wakeup();
+            } catch (Exception $e) {
+                if ($e->getCode() != 100) {
+                    // error
+                    throw $e;
+                }
+            }
+        }
+    }
+
+    /**
      * restart命令动作
      * @throws Exception
      */
@@ -174,12 +193,16 @@ class ManageMultiple
         // 睡眠1秒，等待进程记录
         sleep(1);
         $statusArr = [
+            'MasterConfig' => [],
+            'WorkerConfig' => [],
             'Master' => [],
             'Worker' => [],
         ];
         foreach ($this->manage as $manage) {
             try {
                 $status = $manage->getProcessStatusByCache();
+                $statusArr['MasterConfig'] = array_merge($statusArr['MasterConfig'], $status['MasterConfig']);
+                $statusArr['WorkerConfig'] = array_merge($statusArr['WorkerConfig'], $status['WorkerConfig']);
                 $statusArr['Master'] = array_merge($statusArr['Master'], $status['Master']);
                 $statusArr['Worker'] = array_merge($statusArr['Worker'], $status['Worker']);
             } catch (Exception $e) {

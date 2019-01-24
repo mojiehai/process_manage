@@ -171,6 +171,24 @@ class Manage
     }
 
     /**
+     * wakeup命令动作
+     * @return bool
+     * @throws Exception
+     */
+    public function wakeup()
+    {
+        if ($this->master->isAlive()) {
+            if ($this->master->wakeup()) {
+                return true;
+            } else {
+                throw new Exception('wakeup "'.$this->master->title.'" failure');
+            }
+        } else {
+            throw new Exception('process('.$this->master->title.') is not exists!', 100);
+        }
+    }
+
+    /**
      * restart命令动作
      * @throws Exception
      */
@@ -208,6 +226,12 @@ class Manage
      * 在缓存文件中获取进程的状态
      * @return array 信息数组
      * [
+     *  'MasterConfig' => [
+     *      0 => ['title' => '...', ...],
+     *  ],
+     *  'WorkerConfig' => [
+     *      0 => ['title' => '...', ...],
+     *  ],
      *  'Master' => [
      *      123 => ['pid' => 123, ...]
      *  ],
@@ -244,10 +268,12 @@ class Manage
     }
 
     /**
-     * 显示status信息
+     * 显示或输出status信息
      * @param array $status status信息数组
+     * @param bool $isReturn 是否返回 true：返回字符串  false：直接输出字符串
+     * @return void|string
      */
-    public static function showStatus(array $status)
+    public static function showStatus(array $status, bool $isReturn = false)
     {
         $str = '';
         foreach ($status as $processType => $infoArr) {
@@ -281,7 +307,11 @@ class Manage
 
             $str .= PHP_EOL;
         }
-        echo $str;
+        if ($isReturn) {
+            return $str;
+        } else {
+            echo $str;
+        }
     }
     ################################## command action ####################################
 

@@ -199,6 +199,11 @@ class Worker extends Process
     {
         $status = parent::getRunStatus();
         $status->workTimes = $this->getExecuteTimes();
+        $status->config = [
+            'executeTimes' => $this->executeTimes,
+            'executeUSleep' => $this->executeUSleep,
+            'limitSeconds' => $this->limitSeconds
+        ];
         return $status;
     }
 

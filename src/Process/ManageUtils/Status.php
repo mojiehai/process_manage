@@ -17,6 +17,7 @@ use ProcessManage\Process\Process;
  * @property string memory 内存
  * @property string startTime 开始时间
  * @property int runTime 运行时间
+ * @property array config 配置信息
  *
  * Master:
  * @property int workerPid 子进程pid 逗号分隔
@@ -125,6 +126,12 @@ class Status
      * 读取进程状态
      * @return array 状态数组
      * [
+     *  'MasterConfig' => [
+     *      0 => ['title' => '...', ...],
+     *  ],
+     *  'WorkerConfig' => [
+     *      0 => ['title' => '...', ...],
+     *  ],
      *  'Master' => [
      *      123 => ['pid' => 123, ...]
      *  ],
@@ -180,6 +187,17 @@ class Status
          * @property int workTimes 运行次数
          */
         $template = [
+            'MasterConfig' => [
+                'title' => 'title',
+                'checkWorkerInterval' => 'checkWorkerInterval',
+                'maxWorkerNum' => 'maxWorkerNum',
+            ],
+            'WorkerConfig' => [
+                'title' => 'title',
+                'executeTimes' => 'executeTimes',
+                'executeUSleep' => 'executeUSleep',
+                'limitSeconds' => 'limitSeconds',
+            ],
             'Master' => [
                 'pid' => 'pid',
                 'title' => 'title',
@@ -199,6 +217,7 @@ class Status
         ];
         $result = [];
         $pidArr = []; // 子进程列表
+        $config = []; // 配置列表
         foreach ($read as $k => $v) {
             $tmpValue = $v;
             if ($tmpValue->type == 'Master') {
@@ -207,9 +226,18 @@ class Status
                 $workerNum = count($pidArr);
                 $tmpValue->workerPid = $workerNum;
             }
+            // 配置信息
+            if ($tmpValue->type == 'Master') {
+                $config['MasterConfig'][$tmpValue->title] = array_merge(['title' => $tmpValue->title], $tmpValue->config);
+            } else {
+                $config['WorkerConfig'][$tmpValue->title] = array_merge(['title' => $tmpValue->title], $tmpValue->config);
+            }
             // memory 使用 M
             $tmpValue->memory = sprintf('%.3f',$tmpValue->memory / 1024 / 1024).'('.$tmpValue->memory.'b)';
-            $result[$v->type][$v->pid] = $tmpValue->info;
+            // 去掉本身到配置数组
+            $info = $tmpValue->info;
+            unset($info['config']);
+            $result[$tmpValue->type][$tmpValue->pid] = $info;
         }
 
         // 填充-没有获取到的worker进程
@@ -226,6 +254,9 @@ class Status
                 $result['Worker'][$pid] = $res;
             }
         }
+
+        // 合并配置数组
+        $result = array_merge($config, $result);
 
         // 根据模板替换field title
         foreach ($result as $type => $typeArr) {

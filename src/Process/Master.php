@@ -193,6 +193,19 @@ class Master extends Process
     }
 
 
+    /**
+     * 检测并唤醒子进程
+     * @throws ProcessException
+     */
+    public function wakeup()
+    {
+        if (posix_kill($this->pid, SIGALRM)) {
+            return true;
+        } else {
+            throw new ProcessException('process is not exists!');
+        }
+    }
+
 
     /**
      * 工作开始
@@ -201,7 +214,7 @@ class Master extends Process
      */
     protected function runHandler()
     {
-        posix_kill($this->pid, SIGALRM);
+        $this->wakeup();
         while (true) {
             // 调用信号处理程序
             pcntl_signal_dispatch();
@@ -243,7 +256,8 @@ class Master extends Process
                 // 如果检测子进程间隔>0，说明子进程需要长存，
                 // 因为当前已经退出一个子进程，所以则需要再次检测fork出子进程
                 if ($this->checkWorkerInterval > 0) {
-                    $this->isCheckWorker = true;
+                    // 不及时检测，防止子进程无限启动无限退出，统一使用闹钟启动
+                    //$this->isCheckWorker = true;
                 }
             }
         }
@@ -304,6 +318,10 @@ class Master extends Process
             $pid[] = $v->pid;
         }
         $status->workerPid = implode(',', $pid);
+        $status->config = [
+            'checkWorkerInterval' => $this->checkWorkerInterval,
+            'maxWorkerNum' => $this->maxWorkerNum
+        ];
         return $status;
     }
 
