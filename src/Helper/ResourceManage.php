@@ -16,7 +16,7 @@ class ResourceManage
     public static function resetFileDescriptor()
     {
         //设置默认文件权限
-        umask(022);
+        umask(0);
         //将当前工作目录更改为根目录
         chdir('/');
         //关闭文件描述符

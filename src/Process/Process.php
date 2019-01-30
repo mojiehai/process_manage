@@ -315,7 +315,7 @@ abstract class Process
         pcntl_signal(SIGTERM, [$this, 'stopHandler'], false);
         // 程序终止(interrupt、信号, 在用户键入INTR字符(通常是Ctrl-C、时发出
         pcntl_signal(SIGINT, [$this, 'stopHandler'], false);
-        // 进程运行状态信息
+        // 记录进程运行状态信息
         pcntl_signal(SIGUSR1, [$this, 'statusHandler'], false);
     }
 

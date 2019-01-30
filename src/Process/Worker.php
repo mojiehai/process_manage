@@ -49,6 +49,12 @@ class Worker extends Process
     protected $configNameList = ['executeTimes', 'executeUSleep', 'limitSeconds'];
 
     /**
+     * 父进程对象
+     * @var Master
+     */
+    protected $master = null;
+
+    /**
      * 加载配置
      */
     protected function configure()
@@ -59,6 +65,9 @@ class Worker extends Process
         if ($this->limitSeconds > 0) {
             $this->preExitTime = time() + $this->limitSeconds;
         }
+
+        $this->master = new Master($this->config);
+
     }
 
     /**
@@ -107,8 +116,6 @@ class Worker extends Process
      */
     protected function runHandler()
     {
-        $master = new Master($this->config);
-
         $work = $this->workInit();
         while (true) {
             // 检测信号
@@ -118,7 +125,7 @@ class Worker extends Process
             $this->workExecute($work);
 
             // 检测运行状态
-            if ($this->checkNeedStop($master)) {
+            if ($this->checkNeedStop($this->master)) {
                 $this->setStop();
             }
 
@@ -205,6 +212,24 @@ class Worker extends Process
             'limitSeconds' => $this->limitSeconds
         ];
         return $status;
+    }
+
+    /**
+     * 给父进程发送正常退出信号
+     */
+    protected function sendMasterNormalExit()
+    {
+        posix_kill($this->master->pid, SIGUSR2);
+    }
+
+    /**
+     * 停止当前进程
+     */
+    protected function stop()
+    {
+        // 给父进程发送子进程正常退出信号
+        $this->sendMasterNormalExit();
+        parent::stop();
     }
 
 }

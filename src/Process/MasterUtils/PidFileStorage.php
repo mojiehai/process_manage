@@ -61,10 +61,10 @@ class PidFileStorage
             throw new ProcessException("pid file configure error");
         }
         if (!is_dir($this->pidFileDir)) {
-            if (!mkdir($this->pidFileDir, 0644, true)) {
+            if (!mkdir($this->pidFileDir, 0777, true)) {
                 throw new ProcessException('create master pid directory failure');
             }
-            chmod($this->pidFileDir, 0644);
+            chmod($this->pidFileDir, 0777);
         }
         if (!file_exists($this->pidFilePath)) {
             if (!touch($this->pidFilePath)) {

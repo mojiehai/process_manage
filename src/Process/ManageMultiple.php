@@ -201,6 +201,10 @@ class ManageMultiple
         foreach ($this->manage as $manage) {
             try {
                 $status = $manage->getProcessStatusByCache();
+                if (!isset($status['MasterConfig'])) $status['MasterConfig'] = [];
+                if (!isset($status['WorkerConfig'])) $status['WorkerConfig'] = [];
+                if (!isset($status['Master'])) $status['Master'] = [];
+                if (!isset($status['Worker'])) $status['Worker'] = [];
                 $statusArr['MasterConfig'] = array_merge($statusArr['MasterConfig'], $status['MasterConfig']);
                 $statusArr['WorkerConfig'] = array_merge($statusArr['WorkerConfig'], $status['WorkerConfig']);
                 $statusArr['Master'] = array_merge($statusArr['Master'], $status['Master']);

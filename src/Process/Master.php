@@ -47,6 +47,12 @@ class Master extends Process
     protected $isCheckWorker = false;
 
     /**
+     * 当前有子进程正常退出
+     * @var bool
+     */
+    protected $isWorkerNormalExit = false;
+
+    /**
      * 允许配置的变量
      * @var array
      */
@@ -255,9 +261,11 @@ class Master extends Process
 
                 // 如果检测子进程间隔>0，说明子进程需要长存，
                 // 因为当前已经退出一个子进程，所以则需要再次检测fork出子进程
-                if ($this->checkWorkerInterval > 0) {
-                    // 不及时检测，防止子进程无限启动无限退出，统一使用闹钟启动
-                    //$this->isCheckWorker = true;
+                if ($this->checkWorkerInterval > 0 && $this->isWorkerNormalExit) {
+                    // 不及时检测，防止子进程无限启动无限退出，统一使用闹钟启动(除非子进程正常退出,才及时重启)
+                    $this->isCheckWorker = true;
+                    // 清除子进程正常退出信号
+                    $this->isWorkerNormalExit = false;
                 }
             }
         }
@@ -295,6 +303,8 @@ class Master extends Process
         parent::setSignal();
         // 闹钟信号(检测子进程,进程数不足则启动子进程)
         pcntl_signal(SIGALRM, [$this, 'checkHandler'], false);
+        // 子进程正常运行退出信号
+        pcntl_signal(SIGUSR2, [$this, 'workerNormalExitHandler'], false);
     }
 
 
@@ -304,6 +314,14 @@ class Master extends Process
     protected function checkHandler()
     {
         $this->isCheckWorker = true;
+    }
+
+    /**
+     * 子进程正常退出信号
+     */
+    protected function workerNormalExitHandler()
+    {
+        $this->isWorkerNormalExit = true;
     }
 
     /**

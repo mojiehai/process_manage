@@ -293,9 +293,9 @@ class Status
         $fileRoot = ProcessConfig::$StatusFileRoot;
 
         if (!is_dir($fileRoot)) {
-            $result = mkdir($fileRoot, 0644, true);
+            $result = mkdir($fileRoot, 0777, true);
             if ($result) {
-                chmod($fileRoot, 0644);
+                chmod($fileRoot, 0777);
                 $this->fileRoot = $fileRoot;
             }
         } else {
