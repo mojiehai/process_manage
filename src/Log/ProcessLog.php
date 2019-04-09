@@ -2,10 +2,10 @@
 
 namespace ProcessManage\Log;
 
-use ProcessManage\Process\Manage;
-use ProcessManage\Process\Master;
-use ProcessManage\Process\Process;
-use ProcessManage\Process\Worker;
+use ProcessManage\Process1\Manage;
+use ProcessManage\Process1\Master;
+use ProcessManage\Process1\Process;
+use ProcessManage\Process1\Worker;
 use ProcessManage\Config\LogConfig;
 
 /**

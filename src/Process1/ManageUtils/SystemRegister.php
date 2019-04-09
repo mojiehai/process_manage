@@ -1,6 +1,6 @@
 <?php
 
-namespace ProcessManage\Process\ManageUtils;
+namespace ProcessManage\Process1\ManageUtils;
 use ProcessManage\Log\ProcessLog;
 use Throwable;
 

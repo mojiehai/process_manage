@@ -1,6 +1,6 @@
 <?php
 
-namespace ProcessManage\Process\MasterUtils;
+namespace ProcessManage\Process1\MasterUtils;
 
 use ProcessManage\Config\ProcessConfig;
 use ProcessManage\Exception\ProcessException;

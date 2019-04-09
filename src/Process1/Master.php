@@ -1,13 +1,13 @@
 <?php
 
-namespace ProcessManage\Process;
+namespace ProcessManage\Process1;
 
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Log\ProcessLog;
 use ProcessManage\Exception\Exception;
-use ProcessManage\Process\ManageUtils\Status;
-use ProcessManage\Process\MasterUtils\PidFileStorage;
-use ProcessManage\Process\MasterUtils\WorkerManage;
+use ProcessManage\Process1\ManageUtils\Status;
+use ProcessManage\Process1\MasterUtils\PidFileStorage;
+use ProcessManage\Process1\MasterUtils\WorkerManage;
 
 /**
  * 主进程类

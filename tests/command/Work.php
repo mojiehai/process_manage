@@ -2,7 +2,7 @@
 
 namespace ProcessManage\Command\Options;
 
-use ProcessManage\Process\Worker;
+use ProcessManage\Process1\Worker;
 
 class Work
 {

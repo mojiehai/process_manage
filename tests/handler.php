@@ -2,9 +2,9 @@
 
 require __DIR__."/bootstrap.php";
 
-use ProcessManage\Process\Manage;
-use ProcessManage\Process\Process;
-use ProcessManage\Process\Worker;
+use ProcessManage\Process1\Manage;
+use ProcessManage\Process1\Process;
+use ProcessManage\Process1\Worker;
 
 $config = [
     // 进程基础配置

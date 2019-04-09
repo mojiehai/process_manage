@@ -1,10 +1,10 @@
 <?php
 
-namespace ProcessManage\Process\MasterUtils;
+namespace ProcessManage\Process1\MasterUtils;
 
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Helper\ResourceManage;
-use ProcessManage\Process\Worker;
+use ProcessManage\Process1\Worker;
 use ProcessManage\Log\ProcessLog;
 use ProcessManage\Exception\Exception;
 

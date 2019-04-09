@@ -3,7 +3,7 @@
 namespace ProcessManage\Command\Action;
 
 use ProcessManage\Exception\ProcessException;
-use ProcessManage\Process\Manage;
+use ProcessManage\Process1\Manage;
 use ProcessManage\Command\Options\Work;
 
 /**

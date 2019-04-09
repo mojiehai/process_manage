@@ -2,10 +2,10 @@
 
 require __DIR__."/bootstrap.php";
 
-use ProcessManage\Process\Manage;
-use ProcessManage\Process\Process;
-use ProcessManage\Process\Worker;
-use ProcessManage\Process\ManageMultiple;
+use ProcessManage\Process1\Manage;
+use ProcessManage\Process1\Process;
+use ProcessManage\Process1\Worker;
+use ProcessManage\Process1\ManageMultiple;
 
 $prefix = 'process_m'; // 进程前缀
 

@@ -1,9 +1,9 @@
 <?php
 
-namespace ProcessManage\Process\ManageUtils;
+namespace ProcessManage\Process1\ManageUtils;
 
 use ProcessManage\Config\ProcessConfig;
-use ProcessManage\Process\Process;
+use ProcessManage\Process1\Process;
 
 /**
  * 进程状态类

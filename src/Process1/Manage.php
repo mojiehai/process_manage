@@ -1,12 +1,12 @@
 <?php
 
-namespace ProcessManage\Process;
+namespace ProcessManage\Process1;
 
 
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Exception\Exception;
 use ProcessManage\Helper\ResourceManage;
-use ProcessManage\Process\ManageUtils\SystemRegister;
+use ProcessManage\Process1\ManageUtils\SystemRegister;
 
 /**
  * code is far away from bug with the animal protecting

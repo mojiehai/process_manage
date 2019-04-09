@@ -3,9 +3,9 @@
 namespace ProcessManage\Command\Action;
 
 use ProcessManage\Exception\ProcessException;
-use ProcessManage\Process\Manage;
-use ProcessManage\Process\Process;
-use ProcessManage\Process\Worker;
+use ProcessManage\Process1\Manage;
+use ProcessManage\Process1\Process;
+use ProcessManage\Process1\Worker;
 use ProcessManage\Command\Options\Work;
 
 /**

@@ -4,8 +4,8 @@ namespace ProcessManage\Command\Action;
 
 use ProcessManage\Command\Options\Work;
 use ProcessManage\Exception\Exception;
-use ProcessManage\Process\Manage;
-use ProcessManage\Process\Worker;
+use ProcessManage\Process1\Manage;
+use ProcessManage\Process1\Worker;
 
 /**
  * start 命令动作

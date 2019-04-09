@@ -1,6 +1,6 @@
 <?php
 
-namespace ProcessManage\Process;
+namespace ProcessManage\Process1;
 
 use ProcessManage\Exception\ProcessException;
 use ProcessManage\Helper\ResourceManage;

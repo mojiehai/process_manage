@@ -1,9 +1,9 @@
 <?php
 
-namespace ProcessManage\Process;
+namespace ProcessManage\Process1;
 
 use ProcessManage\Exception\ProcessException;
-use ProcessManage\Process\ManageUtils\Status;
+use ProcessManage\Process1\ManageUtils\Status;
 
 /**
  * 工作进程
